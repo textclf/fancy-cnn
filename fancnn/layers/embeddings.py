@@ -135,7 +135,7 @@ def paragraph_embedding(sentence_len, wv_params, input_name='paragraph_embedding
              [2, 4, 5]]
         are all sentences in a paragraph.
 
-        This returns a shape (n_samples, wv_channels, len_sentence, wv_dim)!
+        This returns a shape (n_samples, n_sentences, wv_channels, len_sentence, wv_dim)!
     '''
     # -- output is (n_samples, n_sentences, n_channels, n_words, wv_dim)
     g = SubGraph()
