@@ -78,7 +78,7 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
     for name, params in wv_params.iteritems():
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
-    g.add_node(Reshape((sentence_len, 2, 200)), name='reshape',
+    g.add_node(Reshape((sentence_len, len(wv_params), wv_size)), name='reshape',
                inputs=wv_params.keys(), merge_mode='concat')
     g.add_node(Permute(dims=(2, 1, 3)), name='permute', input='reshape')
     
