@@ -2,7 +2,6 @@
 embeddings.py -- functionality for working with non-trivial NLP embeddings
 '''
 
-from keras.models import Sequential
 from keras.layers.containers import Graph as SubGraph
 from keras.layers.core import *
 from keras.layers.embeddings import Embedding
@@ -27,13 +26,14 @@ def make_embedding(vocab_size, wv_size, init=None, fixed=False):
 
         a Keras Embedding layer
     '''
-    emb = Embedding(vocab_size, wv_size, weights=[init])
+    emb = Embedding(vocab_size, wv_size, weights=init)
     if fixed:
         emb.trainable = False
         # emb.params = []
     return emb
 
-def sentence_embedding(sentence_len, wv_params, input_name='sentence_embedding', output_name='vector_embedding'):
+def sentence_embedding(sentence_len, wv_params, wv_size,
+                       input_name='sentence_embedding', output_name='vector_embedding'):
     '''
     Creates an embedding of word vectors into a sentence image.
 
@@ -47,14 +47,12 @@ def sentence_embedding(sentence_len, wv_params, input_name='sentence_embedding',
                             'fixed_wv' : 
                             {
                                 'vocab_size' : 1000,
-                                'wv_size' : 200,
                                 'init' : None,
                                 'fixed' : True
                             },
                             'floating_wv' : 
                             {
                                 'vocab_size' : 1000,
-                                'wv_size' : 200,
                                 'init' : None,
                                 'fixed' : False
                             }
@@ -78,9 +76,10 @@ def sentence_embedding(sentence_len, wv_params, input_name='sentence_embedding',
     g.add_input(input_name, (-1, ), dtype='int')
 
     for name, params in wv_params.iteritems():
-        g.add_node(make_embedding(**params), name=name, input=input_name)
+        g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
-    g.add_node(Reshape((sentence_len, 2, wv_size)), name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+    g.add_node(Reshape((sentence_len, 2, 200)), name='reshape',
+               inputs=wv_params.keys(), merge_mode='concat')
     g.add_node(Permute(dims=(2, 1, 3)), name='permute', input='reshape')
     
     # -- output is of shape (nb_samples, nb_wv_channels, len_sentence, wv_dim)
@@ -89,7 +88,8 @@ def sentence_embedding(sentence_len, wv_params, input_name='sentence_embedding',
 
 
 
-def paragraph_embedding(sentence_len, wv_params, input_name='paragraph_embedding', output_name='vector_embedding'):
+def paragraph_embedding(sentence_len, wv_params, wv_size,
+                        input_name='paragraph_embedding', output_name='vector_embedding'):
     '''
     Creates an embedding of word vectors into a sequence of sentence images.
 
@@ -103,14 +103,12 @@ def paragraph_embedding(sentence_len, wv_params, input_name='paragraph_embedding
                             'fixed_wv' : 
                             {
                                 'vocab_size' : 1000,
-                                'wv_size' : 200,
                                 'init' : None,
                                 'fixed' : True
                             },
                             'floating_wv' : 
                             {
                                 'vocab_size' : 1000,
-                                'wv_size' : 200,
                                 'init' : None,
                                 'fixed' : False
                             }
@@ -143,9 +141,10 @@ def paragraph_embedding(sentence_len, wv_params, input_name='paragraph_embedding
     g.add_input(input_name, (-1, ), dtype='int')
 
     for name, params in wv_params.iteritems():
-        g.add_node(make_embedding(**params), name=name, input=input_name)
+        g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
-    g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)), name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+    g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
+               name='reshape', inputs=wv_params.keys(), merge_mode='concat')
     g.add_node(Permute(dims=(1, 3, 2, 4)), name='permute', input='reshape')
     
     # -- output is of shape (nb_samples, nb_wv_channels, len_sentence, wv_dim)

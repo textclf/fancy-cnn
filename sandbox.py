@@ -6,124 +6,49 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.core import *
 from keras.layers.embeddings import Embedding
 
-def normalize_sos(sq, sz=30):
-    '''
-    Take a list of lists and ensure that they are all of length `sz`
+from cnn.layers import embeddings
+from cnn import utilities
 
-    Args:
-    -----
+"""
+Example: 2D convolution over sentence embeddings
+"""
+WV_SIZE = 200
+SENTENCE_LENGTH = 15
 
-        e: a non-generator iterable of lists
+# The "text". Each element is a sentence of words
+x = [[1, 2, 4, 2, 5], [3, 3, 4, 7, 8], [4, 5, 21, 5], [7, 6]]
+# Labels
+y = np.array([0, 1, 0, 1]).astype('float')
 
+# Normalize to length 15
+d = utilities.normalize_sos(x, SENTENCE_LENGTH)
 
-    '''
-    def _normalize(e, sz):
-        return e[:sz] if len(e) >= sz else e + [0] * (sz - len(e))
-    return [_normalize(e, sz) for e in sq]
-
-def sentence_embedding(sentence_len, vocab_size, wv_size, wv_init=None):
-    # -- output is (n_samples, n_channels, n_words, wv_dim)
-    g = SubGraph()
-    
-    g.add_input('sentence_emb', (-1, ), dtype='int')
-
-    eb = Embedding(vocab_size, wv_size, weights=wv_init)
-    # -- fix the word vectors.
-    eb.params = []
-
-    g.add_node(eb, name='fixed', input='sentence_emb')
-    g.add_node(Embedding(vocab_size, wv_size, weights=wv_init), name='floating', input='sentence_emb')
-
-    g.add_node(Reshape((sentence_len, 2, wv_size)), name='reshape', inputs=['fixed', 'floating'], merge_mode='concat')
-    g.add_node(Permute(dims=(2, 1, 3)), name='permute', input='reshape')
-    
-    # -- output is of shape (nb_samples, nb_wv_channels, len_sentence, wv_dim)
-    g.add_output(name='embedding', input='permute')
-    return g
-
-
-
-wv_params = {
-                'fixed_wv' : 
+# Use two channels, one of fixed word vectors and one of floating wvs (we train on them)
+WV_PARAMS = {
+                'fixed_wv' :
                 {
                     'vocab_size' : 1000,
-                    'wv_size' : 200,
                     'init' : None,
                     'fixed' : True
                 },
-                'floating_wv' : 
+                'floating_wv' :
                 {
                     'vocab_size' : 1000,
-                    'wv_size' : 200,
                     'init' : None,
                     'fixed' : False
                 }
             }
 
-def make_embedding(vocab_size, wv_size, init, fixed=False):
-    emb = Embedding(vocab_size, wv_size, weights=init)
-    if fixed:
-        emb.params = []
-    return emb
-
-
-def paragraph_embedding(sentence_len, wv_params):
-    # -- output is (n_samples, n_sentences, n_channels, n_words, wv_dim)
-    g = SubGraph()
-    
-    g.add_input('word_embedding', (-1, ), dtype='int')
-
-    for name, params in wv_params.iteritems():
-        g.add_node(make_embedding(**params), name=name, input='word_embedding')
-
-    g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)), name='reshape', inputs=['fixed_wv', 'floating_wv'], merge_mode='concat')
-    g.add_node(Permute(dims=(1, 3, 2, 4)), name='permute', input='reshape')
-    
-    # -- output is of shape (nb_samples, nb_wv_channels, len_sentence, wv_dim)
-    g.add_output(name='embedding', input='permute')
-    return g
-
-
-
-
-def doc_embedding(sentence_len, vocab_size, wv_size, wv_init=None):
-    # -- output is (n_samples, n_sentences, n_channels, n_words, wv_dim)
-    g = SubGraph()
-    
-    g.add_input('word_embedding', (-1, ), dtype='int')
-
-    eb = Embedding(vocab_size, wv_size, weights=wv_init)
-    # -- fix the word vectors.
-    eb.params = []
-
-    g.add_node(eb, name='fixed_wv', input='word_embedding')
-    g.add_node(Embedding(vocab_size, wv_size, weights=wv_init), name='floating_wv', input='word_embedding')
-
-    g.add_node(Reshape((-1, sentence_len, 2, wv_size)), name='reshape', inputs=['fixed_wv', 'floating_wv'], merge_mode='concat')
-    g.add_node(Permute(dims=(1, 3, 2, 4)), name='permute', input='reshape')
-    
-    # -- output is of shape (nb_samples, nb_wv_channels, len_sentence, wv_dim)
-    g.add_output(name='embedding', input='permute')
-    return g
-
-
-
-
-# -- example
-
-x = [[1, 2, 4, 2, 5], [3, 3, 4, 7, 8], [4, 5, 21, 5], [7, 6]]
-y = np.array([0, 1, 0, 1]).astype('float')
-
-# -- sentences of len 15
-d = normalize_sos(x, 15)
-
-
+# NN example architecture
 cnn = Sequential()
 
-# -- len 15, 100 words, wv dim 200
-g = doc_embedding(2, 100, 200)
-
+g = embeddings.sentence_embedding(SENTENCE_LENGTH, WV_PARAMS, WV_SIZE)
 cnn.add(g)
+
+# 2D convolution with nb_filter=1, stride row by row,
+# reading the whole word vector in a single stride
+conv2d = Convolution2D(1, 1, WV_SIZE, subsample=(1,1))
+cnn.add(conv2d)
 
 cnn.add(Flatten())
 cnn.add(Dropout(0.5))
@@ -136,14 +61,4 @@ cnn.add(Dense(1))
 cnn.add(Activation('sigmoid'))
 
 cnn.compile('adam', 'binary_crossentropy')
-
-
 cnn.fit(np.array(d), y, nb_epoch=2, batch_size=2)
-
-
-
-
-
-
-
-
