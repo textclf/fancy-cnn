@@ -26,7 +26,7 @@ def make_embedding(vocab_size, wv_size, init=None, fixed=False):
 
         a Keras Embedding layer
     '''
-    emb = Embedding(vocab_size, wv_size, weights=init)
+    emb = Embedding(vocab_size, wv_size, weights=[init]) # keras needs a list for initializations
     if fixed:
         emb.trainable = False
         # emb.params = []
