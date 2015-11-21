@@ -80,11 +80,12 @@ class GloVeBox(object):
             for line in f:
                 if ctr % 10000 == 0:
                     log('Loading word {}'.format(ctr))
+                line = line.decode('utf-8')
                 vals = line.rstrip().split(' ')
-                if vals[0] != '<unk>':
+                if vals[0] != u'<unk>':
                     words.append(vals[0])
                 vectors[vals[0]] = [float(x) for x in vals[1:]]
-                ctr += 1 
+                ctr += 1
 
         log('Building storage structures...')
         
@@ -150,11 +151,12 @@ class GloVeBox(object):
             return [self.get_words(o) for o in obj]
 
     def __getitem__(self, key):
-        if isinstance(key, str):
+        if isinstance(key, unicode):
             return self.W[self._get_w2i(key), :]
-
         elif hasattr(key, '__iter__'):
             return self.W[np.array([self._get_w2i(k) for k in key]), :]
+        elif isinstance(key, str):
+            raise GloVeException('Keys must be unicode strings')
 
     def index(self, n_neighbors=5, metric='cosine'):
         alg = 'brute' if (metric == 'cosine') else 'auto'
