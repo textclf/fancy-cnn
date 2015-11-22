@@ -4,14 +4,13 @@ prepare-imdb.py
 description: prepare the imdb data for training in DNNs
 '''
 
+import cPickle as pickle
 import os
 import glob
 import logging
 from multiprocessing import Pool
 
-
 import numpy as np
-from BeautifulSoup import BeautifulSoup
 from spacy.en import English
 
 from cnn.wordvectors.glove import GloVeBox
@@ -30,8 +29,7 @@ nlp = English()
 DATA_PREFIX = './data/aclImdb'
 WV_FILE = './data/wv/IMDB-GloVe-100dim.txt'
 
-def strip_html(s):
-	return BeautifulSoup(s).text
+
 
 
 def get_data(positive=True, which='train'):
@@ -79,6 +77,10 @@ if __name__ == '__main__':
 	log('Building word vectors from {}'.format(WV_FILE))
 	gb = GloVeBox(WV_FILE)
 	gb.build(zero_token=True).index()
+
+	log('writing GloVeBox pickle...')
+	pickle.dump(gb, open(WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
+
 
 	log('Getting training examples')
 	train_neg = get_data(positive=False)
@@ -128,9 +130,11 @@ if __name__ == '__main__':
 	test_labels = np.array([1] * len(test['paragraph_pos']) + [0] * len(test['paragraph_pos'])).astype('float32')
 	log('Saving...')
 
+	# -- training data save
 	np.save('IMDB_train_glove_X.npy', train_text)
 	np.save('IMDB_train_glove_y.npy', train_labels)
 
+	# -- testing data save
 	np.save('IMDB_test_glove_X.npy', test_text)
 	np.save('IMDB_test_glove_y.npy', test_labels)
 
