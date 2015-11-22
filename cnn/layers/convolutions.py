@@ -13,16 +13,16 @@ import theano.tensor as T
 from theano.tensor.signal import downsample
 import numpy as np
 
-from .. import activations, initializations, regularizers, constraints
-from ..utils.theano_utils import shared_zeros, floatX, on_gpu
-from ..utils.generic_utils import make_tuple
-from ..regularizers import ActivityRegularizer, Regularizer
+from keras import activations, initializations, regularizers, constraints
+from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
+from keras.utils.generic_utils import make_tuple
+from keras.regularizers import ActivityRegularizer, Regularizer
 
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 from six.moves import zip
 srng = RandomStreams(seed=np.random.randint(10e6))
 
-from ..layers.core import Layer
+from keras.layers.core import Layer
 
 if on_gpu():
     from theano.sandbox.cuda import dnn
@@ -84,7 +84,7 @@ class TimeDistributedConvolution2D(Layer):
     # Input shape: (num_samples, num_timesteps, stack_size, num_rows, num_cols)
     # Output shape: (num_samples, num_timesteps, num_filters, num_rows, num_cols), Note: num_rows and num_cols could have changed
     # Potential use case: For connecting a Convolutional Layer with a Recurrent or other Time Distributed Layer
-    
+    # (n_samples, n_sentences, wv_channels, len_sentence, wv_dim) 
     input_ndim = 5
 
     def __init__(self, nb_filter, nb_row, nb_col,

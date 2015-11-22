@@ -26,7 +26,10 @@ def make_embedding(vocab_size, wv_size, init=None, fixed=False):
 
         a Keras Embedding layer
     '''
-    emb = Embedding(vocab_size, wv_size, weights=[init]) # keras needs a list for initializations
+    if (init is not None) and len(init.shape) == 2:
+        emb = Embedding(vocab_size, wv_size, weights=[init]) # keras needs a list for initializations
+    else:
+        emb = Embedding(vocab_size, wv_size) # keras needs a list for initializations
     if fixed:
         emb.trainable = False
         # emb.params = []
@@ -143,8 +146,13 @@ def paragraph_embedding(sentence_len, wv_params, wv_size,
     for name, params in wv_params.iteritems():
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
-    g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
-               name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+    if len(wv_params.keys()) > 1:
+        g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
+                   name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+    else:
+        g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
+                   name='reshape', input=wv_params.keys()[0])
+
     g.add_node(Permute(dims=(1, 3, 2, 4)), name='permute', input='reshape')
     
     # -- output is of shape (nb_samples, nb_wv_channels, len_sentence, wv_dim)

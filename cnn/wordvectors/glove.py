@@ -67,7 +67,7 @@ class GloVeBox(object):
         self._nn = None
         return self
 
-    def build(self):
+    def build(self, zero_token=False):
         if (self._vector_file is None):
             raise GloVeException('Need to specify input vector and vocab files before building')
 
@@ -90,15 +90,27 @@ class GloVeBox(object):
         
         log('Mapping words to indices...')
         vocab_size = len(words)
-        self._w2i = {w: idx for idx, w in enumerate(words)}
+        if not zero_token:
+            trf = lambda x : x
+        else:
+            trf = lambda x : x + 1
+            vocab_size += 1
+
+        self._w2i = {str(w): trf(idx) for idx, w in enumerate(words)}
         self._w2i.update({'<unk>' : -1})
+
+        if zero_token:
+            self._w2i.update({'<blank>' : 0})
         
         log('Mapping indices to words...')
-        self._i2w = {idx: w for idx, w in enumerate(words + ['<unk>'])}
+        self._i2w = {trf(idx): str(w) for idx, w in enumerate(words + ['<unk>'])}
         self._i2w.update({-1 : '<unk>'})
 
+        if zero_token:
+            self._i2w.update({0 : '<blank>'})
 
-        vector_dim = len(vectors[self._i2w[0]])
+
+        vector_dim = len(vectors[self._i2w[1]])
         self.W = np.zeros((vocab_size + 1, vector_dim))
         ctr = 0
         for word, v in vectors.iteritems():
@@ -116,17 +128,19 @@ class GloVeBox(object):
         log('Normalizing vectors...')
         # normalize each word vector to unit variance
 
+        self.W[0, :] += 1
         W_norm = np.zeros(self.W.shape)
         d = (np.sum(self.W ** 2, 1) ** (0.5))
         W_norm = (self.W.T / d).T
         self.W = W_norm
+        self.W[0, :] = 0
         self.vocab = words
         self._built = True
         return self
 
     def _get_w2i(self, w):
         try:
-            return self._w2i[w]
+            return self._w2i[w.encode('ascii','ignore')]
         except KeyError:
             return self.W.shape[0] - 1
 
@@ -138,7 +152,7 @@ class GloVeBox(object):
 
 
     def get_indices(self, obj):
-        if isinstance(obj, str):
+        if isinstance(obj, str) or isinstance(obj, unicode):
             return self._get_w2i(obj)
         elif hasattr(obj, '__iter__'):
             return [self.get_indices(o) for o in obj]
@@ -150,8 +164,9 @@ class GloVeBox(object):
             return [self.get_words(o) for o in obj]
 
     def __getitem__(self, key):
-        if isinstance(key, str):
-            return self.W[self._get_w2i(key), :]
+        key = key.encode('ascii','ignore')
+        if isinstance(key, str) or isinstance(key, unicode):
+            return self.W[self._get_w2i((key)), :]
 
         elif hasattr(key, '__iter__'):
             return self.W[np.array([self._get_w2i(k) for k in key]), :]
@@ -182,6 +197,7 @@ class GloVeBox(object):
         '''
         if self._nn is None:
             raise GloVeException('Call to .index() necessary before queries')
+        word = word.encode('ascii','ignore')
         if isinstance(word, str):    
             return  [
                         (self.get_words(i), d) 
