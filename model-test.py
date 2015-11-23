@@ -67,8 +67,8 @@ if __name__ == '__main__':
 		}
 	}
 
-	NGRAMS = [4, 5]
-	NFILTERS = 12
+	NGRAMS = [4, 5, 7]
+	NFILTERS = 21
 	SENTENCE_LENGTH = 50
 	PARAGRAPH_LENGTH = 50
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 			name='maxpool{}gram'.format(n), input='conv{}gram'.format(n))
 
 		graph.add_node(
-			Dropout(0.8),
+			Dropout(0.7),
 			name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n))	
 
 		graph.add_node(
@@ -139,7 +139,8 @@ if __name__ == '__main__':
 
 	acc = ((yhat['prediction'].ravel() > 0.5) == (test['labels'] > 0.5)).mean()
 
-	log('Test set accuracy of {}%. Exiting...'.format(acc * 100.0))
+	log('Test set accuracy of {}%.'.format(acc * 100.0))
+	log('Test set error of {}%. Exiting...'.format((1 - acc) * 100.0))
 
 
 
