@@ -14,7 +14,7 @@ import numpy as np
 from spacy.en import English
 
 from cnn.wordvectors.glove import GloVeBox
-from utilities.misc import normalize_sos
+from util.misc import normalize_sos
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
