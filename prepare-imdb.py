@@ -14,7 +14,7 @@ import numpy as np
 from spacy.en import English
 
 from cnn.wordvectors.glove import GloVeBox
-from cnn.utilities import normalize_sos
+from utilities.misc import normalize_sos
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -26,10 +26,23 @@ def log(msg, logger=logger):
 log('Initializing spaCy...')
 nlp = English()
 
-DATA_PREFIX = './data/aclImdb'
+# -- path where the download script downloads to
+DATA_PREFIX = './datasets/aclImdb/aclImdb'
 WV_FILE = './data/wv/IMDB-GloVe-100dim.txt'
 
 
+def parallel_run(f, parms):
+    '''
+    performs multi-core map of the function `f`
+    over the parameter space spanned by parms.
+
+    `f` MUST take only one argument. 
+    '''
+    pool = Pool()
+    ret = pool.map(f, parms)
+    pool.close()
+    pool.join()
+    return ret
 
 
 def get_data(positive=True, which='train'):
@@ -58,18 +71,6 @@ def parse_tokens(txt):
 	'''
 	return [tx for tx in (t.text for t in nlp(u'' + txt.decode('ascii',errors='ignore'))) if tx != '\n']
 
-def parallel_run(f, parms):
-    '''
-    performs multi-core map of the function `f`
-    over the parameter space spanned by parms.
-
-    `f` MUST take only one argument. 
-    '''
-    pool = Pool()
-    ret = pool.map(f, parms)
-    pool.close()
-    pool.join()
-    return ret
 
 
 if __name__ == '__main__':
