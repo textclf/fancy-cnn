@@ -13,6 +13,8 @@ from multiprocessing import Pool
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+def log(msg, logger=logger):
+    logger.info(LOGGER_PREFIX % msg)
 
 import numpy as np
 
@@ -22,10 +24,6 @@ from spacy.en import English
 from cnn.wordvectors.glove import GloVeBox
 from util.misc import normalize_sos
 
-
-
-def log(msg, logger=logger):
-    logger.info(LOGGER_PREFIX % msg)
 
 log('Initializing spaCy...')
 nlp = English()
