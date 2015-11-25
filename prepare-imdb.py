@@ -11,6 +11,8 @@ import logging
 from multiprocessing import Pool
 
 import numpy as np
+
+log('Importing spaCy...')
 from spacy.en import English
 
 from cnn.wordvectors.glove import GloVeBox
@@ -28,6 +30,7 @@ nlp = English()
 
 # -- path where the download script downloads to
 DATA_PREFIX = './datasets/aclImdb/aclImdb'
+DOWNLOAD_PATH = './datasets/aclImdb'
 WV_FILE = './data/wv/IMDB-GloVe-100dim.txt'
 
 
@@ -56,7 +59,7 @@ def data_integrity():
 				break
 	if not all_ok:
 		wkdir = os.getcwd()
-		os.chdir(os.path.join(DATA_PREFIX, '../'))
+		os.chdir(DOWNLOAD_PATH)
 		import subprocess
 		subprocess.call("./download.sh", shell=True)
 		os.chdir(wkdir)
