@@ -44,6 +44,25 @@ def parallel_run(f, parms):
     pool.join()
     return ret
 
+def data_integrity():
+	all_ok = False
+	if os.path.isdir(DATA_PREFIX):
+		for part in ['train', 'test']:
+			for lab in ['pos', 'neg']:
+				if not os.path.isdir(os.path.join(DATA_PREFIX, which, 'pos')):
+					all_ok = False
+					break
+			if not all_ok:
+				break
+	if not all_ok:
+		wkdir = os.getcwd()
+		os.chdir(os.path.join(DATA_PREFIX, '../'))
+		import subprocess
+		subprocess.call("./download.sh", shell=True)
+		os.chdir(wkdir)
+
+
+
 
 def get_data(positive=True, which='train'):
 	_logger = logging.getLogger(__name__)
@@ -74,6 +93,10 @@ def parse_tokens(txt):
 
 
 if __name__ == '__main__':
+
+	log('Checking data integrity...')
+
+	data_integrity()
 	
 	log('Building word vectors from {}'.format(WV_FILE))
 	gb = GloVeBox(WV_FILE)
