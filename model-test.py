@@ -67,8 +67,8 @@ if __name__ == '__main__':
 		}
 	}
 
-	NGRAMS = [4, 5, 7]
-	NFILTERS = 21
+	NGRAMS = [2, 3, 4, 5, 7, 9]
+	NFILTERS = 32
 	SENTENCE_LENGTH = 50
 	PARAGRAPH_LENGTH = 50
 
@@ -115,13 +115,15 @@ if __name__ == '__main__':
 	graph.add_output(name='prediction', input='probability')
 
 	log('Compiling model (Veuillez patienter)...')
-	graph.compile('rmsprop', {'prediction': 'binary_crossentropy'})
+	sgd = SGD(lr=0.01, momentum=0.8, decay=0.0001, nesterov=True)
+	graph.compile(sgd, {'prediction': 'binary_crossentropy'})
 
 	log('Fitting! Hit CTRL-C to stop early...')
 	try:
 		history = graph.fit(
 			{'text': train['text'], 'prediction': train['labels']}, 
 			validation_split=0.35, batch_size=28, nb_epoch=100, 
+			verbose=2, # -- for logging purposes
 			sample_weight = {'prediction' : weights}, callbacks = 
 				   [
 				       EarlyStopping(verbose=True, patience=30, monitor='val_loss'),
