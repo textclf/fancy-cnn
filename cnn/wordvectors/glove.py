@@ -7,8 +7,6 @@ import logging
 
 import numpy as np
 
-from sklearn.neighbors import NearestNeighbors
-
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -16,6 +14,14 @@ logger = logging.getLogger(__name__)
 
 def log(msg):
     logger.info(LOGGER_PREFIX % msg)
+
+
+try:
+    from sklearn.neighbors import NearestNeighbors
+    SKLEARN = True
+except ImportError:
+    log('Error in scikit-learn import. No indexing available.')
+    SKLEARN = False
 
 class GloVeException(Exception):
     """Errors for GloVeBox"""
@@ -196,6 +202,8 @@ class GloVeBox(object):
          ('daughter', 0.42422056933288177)]
 
         '''
+        if not SKLEARN:
+            log('[WARNING] call to nearest returning None, sklearn issues present')
         if self._nn is None:
             raise GloVeException('Call to .index() necessary before queries')
         word = word.encode('ascii','ignore')
