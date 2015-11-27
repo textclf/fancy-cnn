@@ -52,7 +52,7 @@ def data_integrity():
 	if os.path.isdir(DATA_PREFIX):
 		for part in ['train', 'test']:
 			for lab in ['pos', 'neg']:
-				if not os.path.isdir(os.path.join(DATA_PREFIX, which, 'pos')):
+				if not os.path.isdir(os.path.join(DATA_PREFIX, part, lab)):
 					all_ok = False
 					break
 			if not all_ok:
