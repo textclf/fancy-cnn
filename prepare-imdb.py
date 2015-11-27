@@ -103,7 +103,7 @@ if __name__ == '__main__':
 	
 	log('Building word vectors from {}'.format(WV_FILE))
 	gb = GloVeBox(WV_FILE)
-	gb.build(zero_token=True).index()
+	gb.build(zero_token=True)#.index()
 
 	log('writing GloVeBox pickle...')
 	pickle.dump(gb, open(WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
