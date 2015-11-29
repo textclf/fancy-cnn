@@ -1,6 +1,4 @@
 try:
-    from nltk import wordpunct_tokenize
-    from nltk.corpus import stopwords
     from spacy.en import English
 except ImportError:
     print '[!] You need to install nltk (http://nltk.org/index.html) and Spacy'

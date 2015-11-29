@@ -52,7 +52,7 @@ def data_integrity():
 	if os.path.isdir(DATA_PREFIX):
 		for part in ['train', 'test']:
 			for lab in ['pos', 'neg']:
-				if not os.path.isdir(os.path.join(DATA_PREFIX, which, 'pos')):
+				if not os.path.isdir(os.path.join(DATA_PREFIX, part, lab)):
 					all_ok = False
 					break
 			if not all_ok:
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 	
 	log('Building word vectors from {}'.format(WV_FILE))
 	gb = GloVeBox(WV_FILE)
-	gb.build(zero_token=True).index()
+	gb.build(zero_token=True)#.index()
 
 	log('writing GloVeBox pickle...')
 	pickle.dump(gb, open(WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
@@ -131,14 +131,15 @@ if __name__ == '__main__':
 	# -- parameters to tune and set
 	WORDS_PER_SENTENCE = 50
 	SENTENCES_PER_PARAGRAPH = 50
+	PREPEND = True
  
 	log('normalizing training inputs...')
 	train_repr = normalize_sos(
 							[
-								normalize_sos(review, WORDS_PER_SENTENCE) 
+								normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
 								for review in gb.get_indices(train['paragraph_pos'] + train['paragraph_neg'])
 							], 
-			SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
+			SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
 		)
 
 	train_text = np.array(train_repr)
@@ -147,10 +148,10 @@ if __name__ == '__main__':
 	log('normalizing testing inputs...')
 	test_repr = normalize_sos(
 						[
-							normalize_sos(review, WORDS_PER_SENTENCE) 
+							normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
 							for review in gb.get_indices(test['paragraph_pos'] + test['paragraph_neg'])
 						], 
-		SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
+		SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
 	)
 
 	test_text = np.array(test_repr)
