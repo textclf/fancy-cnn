@@ -65,7 +65,7 @@ if __name__ == '__main__':
 		}
 	}
 
-    NGRAMS = [2, 3, 4]
+    NGRAMS = [3, 4, 5, 6]
     NFILTERS = 21
     SENTENCE_LENGTH = 20
     PARAGRAPH_LENGTH = 20
@@ -103,10 +103,10 @@ if __name__ == '__main__':
 
     log('Adding bi-directional GRU')
     graph.add_node(GRU(25), name='gru_forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
-    # graph.add_node(GRU(25, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
+    graph.add_node(GRU(25, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
     # graph.add_node(GRU(16), name='gru', input='flatten4gram')
 
-    graph.add_node(Dropout(0.5), name='gru_dropout', input='gru_forwards')
+    graph.add_node(Dropout(0.5), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
 
     graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='gru_dropout')
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     try:
         history = graph.fit(
 			{'text': train['text'], 'prediction': train['labels']},
-			validation_split=0.35, batch_size=28, nb_epoch=5,
+			validation_split=0.35, batch_size=28, nb_epoch=50,
 			sample_weight = {'prediction' : weights}, callbacks =
 				   [
 				       EarlyStopping(verbose=True, patience=30, monitor='val_loss'),

@@ -40,8 +40,8 @@ TRAIN_FILE = "datasets/yelp/data_funny_binary_balanced/TrainSet_147444"
 DEV_FILE = "datasets/yelp/data_funny_binary_balanced/DevSet_147444"
 TEST_FILE = "datasets/yelp/data_funny_binary_balanced/TestSet_147444"
 
-NUM_TRAIN_REVIEWS = 30000 # None if want to use all
-NUM_TEST_REVIEWS = 10000
+NUM_TRAIN_REVIEWS = None # None if want to use all
+NUM_TEST_REVIEWS = None
 
 # -- parameters to tune and set
 WORDS_PER_SENTENCE = 20
