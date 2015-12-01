@@ -8,6 +8,7 @@ into a 5D tensor across multi-sentence embeddings.
 from keras.layers.containers import Graph as SubGraph
 from keras.layers.core import Permute, Reshape
 from keras.layers.embeddings import Embedding
+from .version import KERAS_BACKEND
 
 def make_embedding(vocab_size, wv_size, init=None, fixed=False, **kwargs):
     '''
@@ -78,8 +79,11 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
     '''
     # -- output is (n_samples, n_channels, n_words, wv_dim)
     g = SubGraph()
-    
-    g.add_input(input_name, (-1, ), dtype='int')
+
+    if KERAS_BACKEND:
+        g.add_input(input_name, (sentence_len, ), dtype='int')
+    else:
+        g.add_input(input_name, (-1, ), dtype='int')
 
     for name, params in wv_params.iteritems():
         # g.add_input(params['input_name'], (-1, ), dtype='int')
@@ -146,22 +150,34 @@ def paragraph_embedding(paragraph_len, sentence_len, wv_params, wv_size,
     g = SubGraph()
     
     # -- fix for new keras backend
-    # g.add_input(input_name, (-1, ), dtype='int')
-    g.add_input(input_name, (sentence_len * paragraph_len, ), dtype='int')
+    
+    if KERAS_BACKEND:
+        g.add_input(input_name, (sentence_len * paragraph_len, ), dtype='int')
+    else:
+        g.add_input(input_name, (-1, ), dtype='int')
+
     for name, params in wv_params.iteritems():
         # g.add_input(params['input_name'], (-1, ), dtype='int')
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
     if len(wv_params.keys()) > 1:
         # -- removal for backend compatibility
-        # g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
-        g.add_node(Reshape((paragraph_len, sentence_len, len(wv_params), wv_size)),
-                   name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+        if KERAS_BACKEND:
+            g.add_node(Reshape((paragraph_len, sentence_len, len(wv_params), wv_size)),
+                       name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+        else:
+            g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
+                name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+
     else:
         # -- removal for backend compatibility
-        # g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
-        g.add_node(Reshape((paragraph_len, sentence_len, len(wv_params), wv_size)),
-                   name='reshape', input=wv_params.keys()[0])
+        if KERAS_BACKEND:
+            g.add_node(Reshape((paragraph_len, sentence_len, len(wv_params), wv_size)),
+                       name='reshape', input=wv_params.keys()[0])
+        else:
+            g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
+                    name='reshape', inputs=wv_params.keys(), merge_mode='concat')
+
 
     g.add_node(Permute(dims=(1, 3, 2, 4)), name='permute', input='reshape')
     
