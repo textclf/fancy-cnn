@@ -14,17 +14,18 @@ from theano.tensor.signal import downsample
 import numpy as np
 
 from keras import activations, initializations, regularizers, constraints
-from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
+# from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
+from keras.backend import zeros
 from keras.utils.generic_utils import make_tuple
 from keras.regularizers import ActivityRegularizer, Regularizer
 
-from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
+# from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 from six.moves import zip
-srng = RandomStreams(seed=np.random.randint(10e6))
+# srng = RandomStreams(seed=np.random.randint(10e6))
 
 from keras.layers.core import Layer
 
-if on_gpu():
+if theano.config.device[:3] == 'gpu'
     from theano.sandbox.cuda import dnn
 
 def conv_output_length(input_length, filter_size, border_mode, stride):
