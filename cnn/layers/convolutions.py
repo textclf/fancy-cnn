@@ -14,8 +14,13 @@ from theano.tensor.signal import downsample
 import numpy as np
 
 from keras import activations, initializations, regularizers, constraints
-# from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
-from keras.backend import zeros as shared_zeros
+try:
+    from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
+except:
+    print '[new keras detected]'
+    from keras.backend import zeros as shared_zeros
+    def on_gpu():
+        return theano.config.device[:3] == 'gpu'
 from keras.utils.generic_utils import make_tuple
 from keras.regularizers import ActivityRegularizer, Regularizer
 
@@ -25,8 +30,7 @@ from six.moves import zip
 
 from keras.layers.core import Layer
 
-def on_gpu():
-    return theano.config.device[:3] == 'gpu'
+
 
 if on_gpu():
     from theano.sandbox.cuda import dnn
