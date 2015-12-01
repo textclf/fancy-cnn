@@ -1,7 +1,5 @@
 # -- CREDIT to Aran Nayebi for time distrib. convs.
-# Extra Layers that I have added to Keras
-# Layers that have been added to the Keras master branch will be noted both in the ReadMe and removed from extra.py.
-#
+
 # Copyright Aran Nayebi, 2015
 # anayebi@stanford.edu
 #
@@ -14,19 +12,21 @@ from theano.tensor.signal import downsample
 import numpy as np
 
 from keras import activations, initializations, regularizers, constraints
-try:
-    from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
-except:
+
+from .version import KERAS_BACKEND
+    
+if KERAS_BACKEND:
     print '[new keras detected]'
     from keras.backend import zeros as shared_zeros
     def on_gpu():
         return theano.config.device[:3] == 'gpu'
+else:
+    from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
+
 from keras.utils.generic_utils import make_tuple
 from keras.regularizers import ActivityRegularizer, Regularizer
 
-# from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 from six.moves import zip
-# srng = RandomStreams(seed=np.random.randint(10e6))
 
 from keras.layers.core import Layer
 

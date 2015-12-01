@@ -1,4 +1,7 @@
 import logging
+
+
+
 from keras.layers.recurrent import LSTM, GRU
 from keras.models import Sequential, model_from_json, Graph
 from keras.layers.core import Dense, Dropout, MaxoutDense, Activation
@@ -8,6 +11,7 @@ from keras.optimizers import SGD
 
 from cnn.layers.convolutions import *
 from cnn.layers.embeddings import *
+from cnn.layers.version import KERAS_BACKEND
 
 import numpy as np
 import cPickle as pickle
@@ -22,7 +26,7 @@ def log(msg, logger=logger):
 
 if __name__ == '__main__':
 
-    WV_FILE = './data/wv/IMDB-GloVe-100dim-glovebox.pkl'
+    WV_FILE = './data/wv/glove.42B.300d.120000-glovebox.pkl'
     MODEL_FILE = './test-model.h5'
 
     # -- load in all the data
@@ -57,13 +61,13 @@ if __name__ == '__main__':
     gb = pickle.load(open(WV_FILE, 'rb'))
 
     WV_PARAMS = {
-		'floating_wv' :
-		{
-			'vocab_size' : gb.W.shape[0],
-			'init' : gb.W,
-			'fixed' : False
-		}
-	}
+        'floating_wv' :
+        {
+            'vocab_size' : gb.W.shape[0],
+            'init' : gb.W,
+            'fixed' : False
+        }
+    }
 
     NGRAMS = [3, 4, 5, 6]
     NFILTERS = 21
@@ -72,11 +76,11 @@ if __name__ == '__main__':
 
     log('Making graph model')
     graph = Graph()
-    graph.add_input(name='text', input_shape=(-1, ), dtype='int')
+    graph.add_input(name='text', input_shape=(SENTENCE_LENGTH * PARAGRAPH_LENGTH, ), dtype='int')
 
     log('Making embedding')
 
-    embed = paragraph_embedding(PARAGRAPH_LENGTH, WV_PARAMS, WV_PARAMS['floating_wv']['init'].shape[1])
+    embed = paragraph_embedding(PARAGRAPH_LENGTH, SENTENCE_LENGTH, WV_PARAMS, WV_PARAMS['floating_wv']['init'].shape[1])
 
     graph.add_node(embed, name='embedding', input='text')
 
@@ -87,19 +91,19 @@ if __name__ == '__main__':
     for n in NGRAMS:
         graph.add_node(
             TimeDistributedConvolution2D(NFILTERS, n, WV_PARAMS['floating_wv']['init'].shape[1], activation='relu'),
-			name='conv{}gram'.format(n), input='embedding')
+            name='conv{}gram'.format(n), input='embedding')
 
         graph.add_node(
-			TimeDistributedMaxPooling2D(pool_size=(SENTENCE_LENGTH - n + 1, 1)),
-			name='maxpool{}gram'.format(n), input='conv{}gram'.format(n))
+            TimeDistributedMaxPooling2D(pool_size=(SENTENCE_LENGTH - n + 1, 1)),
+            name='maxpool{}gram'.format(n), input='conv{}gram'.format(n))
 
         graph.add_node(
-			Dropout(0.7),
-			name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n))
+            Dropout(0.7),
+            name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n))
 
         graph.add_node(
-			TimeDistributedFlatten(),
-			name='flatten{}gram'.format(n), input='dropout{}gram'.format(n))
+            TimeDistributedFlatten(),
+            name='flatten{}gram'.format(n), input='dropout{}gram'.format(n))
 
     log('Adding bi-directional GRU')
     graph.add_node(GRU(25), name='gru_forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
@@ -118,14 +122,14 @@ if __name__ == '__main__':
     log('Fitting! Hit CTRL-C to stop early...')
     try:
         history = graph.fit(
-			{'text': train['text'], 'prediction': train['labels']},
-			validation_split=0.35, batch_size=28, nb_epoch=50,
-			sample_weight = {'prediction' : weights}, callbacks =
-				   [
-				       EarlyStopping(verbose=True, patience=30, monitor='val_loss'),
-				       ModelCheckpoint(MODEL_FILE, monitor='val_loss', verbose=True, save_best_only=True)
-				   ]
-		   )
+            {'text': train['text'], 'prediction': train['labels']},
+            validation_split=0.35, batch_size=28, nb_epoch=50,
+            sample_weight = {'prediction' : weights}, callbacks =
+                   [
+                       EarlyStopping(verbose=True, patience=30, monitor='val_loss'),
+                       ModelCheckpoint(MODEL_FILE, monitor='val_loss', verbose=True, save_best_only=True)
+                   ]
+           )
     except KeyboardInterrupt:
         log('Training stopped early!')
 
