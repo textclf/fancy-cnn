@@ -100,7 +100,7 @@ if __name__ == '__main__':
     
     for name, params in WV_PARAMS.iteritems():
         # -- add each word vector channel
-        graph.add_input(params['input_name'], (-1, ), dtype='int')
+        graph.add_input(params['input_name'], (SENTENCE_LENGTH * PARAGRAPH_LENGTH, ), dtype='int')
 
         # -- create the embedding!
         graph.add_node(make_embedding(wv_size=300, **params), name=name, input=params['input_name'])
