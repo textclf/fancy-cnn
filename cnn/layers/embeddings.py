@@ -145,7 +145,9 @@ def paragraph_embedding(sentence_len, wv_params, wv_size,
     # -- output is (n_samples, n_sentences, n_channels, n_words, wv_dim)
     g = SubGraph()
     
-    g.add_input(input_name, (-1, ), dtype='int')
+    # -- fix for new keras backend
+    # g.add_input(input_name, (-1, ), dtype='int')
+    g.add_input(input_name, (sentence_len * wv_size, ), dtype='int')
     for name, params in wv_params.iteritems():
         # g.add_input(params['input_name'], (-1, ), dtype='int')
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
