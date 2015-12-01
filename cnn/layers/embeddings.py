@@ -1,12 +1,15 @@
 '''
 embeddings.py -- functionality for working with non-trivial NLP embeddings
+
+In particular, functionality for reshaping a 2D temporal tensor (integer lookups)
+into a 5D tensor across multi-sentence embeddings.
 '''
 
 from keras.layers.containers import Graph as SubGraph
-from keras.layers.core import *
+from keras.layers.core import Permute, Reshape
 from keras.layers.embeddings import Embedding
 
-def make_embedding(vocab_size, wv_size, init=None, fixed=False):
+def make_embedding(vocab_size, wv_size, init=None, fixed=False, **kwargs):
     '''
     Takes parameters and makes a word vector embedding
 
@@ -49,12 +52,14 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
                         wv_params = {
                             'fixed_wv' : 
                             {
+                                'input_name' : 'fixed_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : True
                             },
                             'floating_wv' : 
                             {
+                                'input_name' : 'floating_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : False
@@ -79,6 +84,7 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
     g.add_input(input_name, (-1, ), dtype='int')
 
     for name, params in wv_params.iteritems():
+        # g.add_input(params['input_name'], (-1, ), dtype='int')
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
     g.add_node(Reshape((sentence_len, len(wv_params), wv_size)), name='reshape',
@@ -91,8 +97,7 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
 
 
 
-def paragraph_embedding(sentence_len, wv_params, wv_size,
-                        input_name='paragraph_embedding', output_name='vector_embedding'):
+def paragraph_embedding(sentence_len, wv_params, wv_size, output_name='vector_embedding'):
     '''
     Creates an embedding of word vectors into a sequence of sentence images.
 
@@ -105,12 +110,14 @@ def paragraph_embedding(sentence_len, wv_params, wv_size,
                         wv_params = {
                             'fixed_wv' : 
                             {
+                                'input_name' : 'fixed_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : True
                             },
                             'floating_wv' : 
                             {
+                                'input_name' : 'floating_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : False
@@ -141,10 +148,10 @@ def paragraph_embedding(sentence_len, wv_params, wv_size,
     # -- output is (n_samples, n_sentences, n_channels, n_words, wv_dim)
     g = SubGraph()
     
-    g.add_input(input_name, (-1, ), dtype='int')
 
     for name, params in wv_params.iteritems():
-        g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
+        # g.add_input(params['input_name'], (-1, ), dtype='int')
+        g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=params['input_name'])
 
     if len(wv_params.keys()) > 1:
         g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),

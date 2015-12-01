@@ -31,7 +31,9 @@ nlp = English()
 # -- path where the download script downloads to
 DATA_PREFIX = './datasets/aclImdb/aclImdb'
 DOWNLOAD_PATH = './datasets/aclImdb'
-WV_FILE = './data/wv/IMDB-GloVe-100dim.txt'
+
+WV_FILE = './data/wv/IMDB-GloVe-300dim.txt'
+GLOBAL_WV_FILE = '../pretrained/glove.42B.300d.120000.txt'
 
 
 def parallel_run(f, parms):
@@ -48,7 +50,7 @@ def parallel_run(f, parms):
     return ret
 
 def data_integrity():
-	all_ok = False
+	all_ok = True
 	if os.path.isdir(DATA_PREFIX):
 		for part in ['train', 'test']:
 			for lab in ['pos', 'neg']:
@@ -57,6 +59,8 @@ def data_integrity():
 					break
 			if not all_ok:
 				break
+	else:
+		all_ok = False
 	if not all_ok:
 		wkdir = os.getcwd()
 		os.chdir(DOWNLOAD_PATH)
@@ -105,8 +109,13 @@ if __name__ == '__main__':
 	gb = GloVeBox(WV_FILE)
 	gb.build(zero_token=True)#.index()
 
+	log('Building global word vectors from {}'.format(GLOBAL_WV_FILE))
+	global_gb = GloVeBox(GLOBAL_WV_FILE)
+	global_gb.build(zero_token=True)#.index()
+
 	log('writing GloVeBox pickle...')
 	pickle.dump(gb, open(WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
+	pickle.dump(global_gb, open(GLOBAL_WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
 
 
 	log('Getting training examples')
@@ -129,11 +138,13 @@ if __name__ == '__main__':
 
 
 	# -- parameters to tune and set
-	WORDS_PER_SENTENCE = 50
-	SENTENCES_PER_PARAGRAPH = 50
-	PREPEND = True
+	WORDS_PER_SENTENCE = 30
+	SENTENCES_PER_PARAGRAPH = 30
+	PREPEND = False
  
 	log('normalizing training inputs...')
+
+	log('  --> building local word vector representation')
 	train_repr = normalize_sos(
 							[
 								normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
@@ -143,9 +154,22 @@ if __name__ == '__main__':
 		)
 
 	train_text = np.array(train_repr)
+
+	log('  --> building global word vector representation')
+	global_train_repr = normalize_sos(
+							[
+								normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
+								for review in global_gb.get_indices(train['paragraph_pos'] + train['paragraph_neg'])
+							], 
+			SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
+		)
+
+	global_train_text = np.array(global_train_repr)
+
 	train_labels = np.array([1] * len(train['paragraph_pos']) + [0] * len(train['paragraph_pos'])).astype('float32')
 
 	log('normalizing testing inputs...')
+	log('  --> building local word vector representation')
 	test_repr = normalize_sos(
 						[
 							normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
@@ -153,17 +177,28 @@ if __name__ == '__main__':
 						], 
 		SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
 	)
-
 	test_text = np.array(test_repr)
+	log('  --> building global word vector representation')
+	global_test_repr = normalize_sos(
+						[
+							normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
+							for review in global_gb.get_indices(test['paragraph_pos'] + test['paragraph_neg'])
+						], 
+		SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
+	)
+
+	global_test_text = np.array(global_test_repr)
 	test_labels = np.array([1] * len(test['paragraph_pos']) + [0] * len(test['paragraph_pos'])).astype('float32')
 	log('Saving...')
 
 	# -- training data save
 	np.save('IMDB_train_glove_X.npy', train_text)
+	np.save('IMDB_train_global_glove_X.npy', global_train_text)
 	np.save('IMDB_train_glove_y.npy', train_labels)
 
 	# -- testing data save
 	np.save('IMDB_test_glove_X.npy', test_text)
+	np.save('IMDB_test_global_glove_X.npy', global_test_text)
 	np.save('IMDB_test_glove_y.npy', test_labels)
 
 
