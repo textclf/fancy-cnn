@@ -52,14 +52,12 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
                         wv_params = {
                             'fixed_wv' : 
                             {
-                                'input_name' : 'fixed_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : True
                             },
                             'floating_wv' : 
                             {
-                                'input_name' : 'floating_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : False
@@ -97,7 +95,8 @@ def sentence_embedding(sentence_len, wv_params, wv_size,
 
 
 
-def paragraph_embedding(sentence_len, wv_params, wv_size, output_name='vector_embedding'):
+def paragraph_embedding(sentence_len, wv_params, wv_size,
+        input_name='paragraph_embedding',  output_name='vector_embedding'):
     '''
     Creates an embedding of word vectors into a sequence of sentence images.
 
@@ -110,14 +109,12 @@ def paragraph_embedding(sentence_len, wv_params, wv_size, output_name='vector_em
                         wv_params = {
                             'fixed_wv' : 
                             {
-                                'input_name' : 'fixed_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : True
                             },
                             'floating_wv' : 
                             {
-                                'input_name' : 'floating_input',
                                 'vocab_size' : 1000,
                                 'init' : None,
                                 'fixed' : False
@@ -148,7 +145,7 @@ def paragraph_embedding(sentence_len, wv_params, wv_size, output_name='vector_em
     # -- output is (n_samples, n_sentences, n_channels, n_words, wv_dim)
     g = SubGraph()
     
-
+    g.add_input(input_name, (-1, ), dtype='int')
     for name, params in wv_params.iteritems():
         # g.add_input(params['input_name'], (-1, ), dtype='int')
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=params['input_name'])
