@@ -33,7 +33,7 @@ DATA_PREFIX = './datasets/aclImdb/aclImdb'
 DOWNLOAD_PATH = './datasets/aclImdb'
 
 WV_FILE = './data/wv/IMDB-GloVe-300dim.txt'
-GLOBAL_WV_FILE = '../pretrained/glove.42B.300d.120000.txt'
+GLOBAL_WV_FILE = '../data/wv/glove.42B.300d.120000.txt'
 
 
 def parallel_run(f, parms):
