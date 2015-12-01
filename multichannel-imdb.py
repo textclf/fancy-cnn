@@ -106,7 +106,7 @@ if __name__ == '__main__':
         graph.add_node(make_embedding(wv_size=300, **params), name=name, input=params['input_name'])
 
     # -- reshape to 5D tensor
-    graph.add_node(Reshape((-1, SENTENCE_LENGTH, len(WV_PARAMS), 300)), name='reshape', inputs=WV_PARAMS.keys(), merge_mode='concat')
+    graph.add_node(Reshape((PARAGRAPH_LENGTH, SENTENCE_LENGTH, len(WV_PARAMS), 300)), name='reshape', inputs=WV_PARAMS.keys(), merge_mode='concat')
    
     # -- permut
     graph.add_node(Permute(dims=(1, 3, 2, 4)), name='embedding', input='reshape')
