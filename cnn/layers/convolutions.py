@@ -15,7 +15,7 @@ import numpy as np
 
 from keras import activations, initializations, regularizers, constraints
 # from keras.utils.theano_utils import shared_zeros, floatX, on_gpu
-from keras.backend import zeros
+from keras.backend import zeros as shared_zeros
 from keras.utils.generic_utils import make_tuple
 from keras.regularizers import ActivityRegularizer, Regularizer
 
@@ -25,7 +25,10 @@ from six.moves import zip
 
 from keras.layers.core import Layer
 
-if theano.config.device[:3] == 'gpu':
+def on_gpu():
+    return theano.config.device[:3] == 'gpu'
+
+if on_gpu():
     from theano.sandbox.cuda import dnn
 
 def conv_output_length(input_length, filter_size, border_mode, stride):
