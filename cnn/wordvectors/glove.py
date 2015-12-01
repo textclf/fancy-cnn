@@ -103,14 +103,14 @@ class GloVeBox(object):
             trf = lambda x : x + 1
             vocab_size += 1
 
-        self._w2i = {str(w): trf(idx) for idx, w in enumerate(words)}
+        self._w2i = {unicode(w): trf(idx) for idx, w in enumerate(words)}
         self._w2i.update({'<unk>' : -1})
 
         if zero_token:
             self._w2i.update({'<blank>' : 0})
         
         log('Mapping indices to words...')
-        self._i2w = {trf(idx): str(w) for idx, w in enumerate(words + ['<unk>'])}
+        self._i2w = {trf(idx): unicode(w) for idx, w in enumerate(words + ['<unk>'])}
         self._i2w.update({-1 : '<unk>'})
 
         if zero_token:
@@ -120,13 +120,25 @@ class GloVeBox(object):
         vector_dim = len(vectors[self._i2w[1]])
         self.W = np.zeros((vocab_size + 1, vector_dim))
         ctr = 0
+
+        # for word, v in vectors.iteritems():
+        #     if ctr % 10000 == 0:
+        #         log('Loading word vector {}'.format(ctr))
+        #     if word == '<unk>':
+        #         continue
+        #     self.W[self._w2i[word], :] = v
+        #     ctr += 1
+
+        vs, ix = [], []
         for word, v in vectors.iteritems():
             if ctr % 10000 == 0:
                 log('Loading word vector {}'.format(ctr))
             if word == '<unk>':
                 continue
-            self.W[self._w2i[word], :] = v
+            vs.append(v)
+            ix.append(self._w2i[word])
             ctr += 1
+        self.W[np.array(ix), :] = np.array(vs)
         try:
             self.W[-1, :] = vectors['<unk>']
         except KeyError:
@@ -147,7 +159,7 @@ class GloVeBox(object):
 
     def _get_w2i(self, w):
         try:
-            return self._w2i[w.encode('ascii','ignore')]
+            return self._w2i[unicode(w)]
         except KeyError:
             return self.W.shape[0] - 1
 
@@ -206,8 +218,7 @@ class GloVeBox(object):
             log('[WARNING] call to nearest returning None, sklearn issues present')
         if self._nn is None:
             raise GloVeException('Call to .index() necessary before queries')
-        word = word.encode('ascii','ignore')
-        if isinstance(word, str):    
+        if isinstance(word, str) or isinstance(word, unicode):    
             return  [
                         (self.get_words(i), d) 
                         for d, i in zip(*
