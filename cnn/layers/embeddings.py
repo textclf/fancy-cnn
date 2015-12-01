@@ -153,10 +153,12 @@ def paragraph_embedding(paragraph_len, sentence_len, wv_params, wv_size,
         g.add_node(make_embedding(wv_size=wv_size, **params), name=name, input=input_name)
 
     if len(wv_params.keys()) > 1:
+        # -- removal for backend compatibility
         # g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
         g.add_node(Reshape((paragraph_len, sentence_len, len(wv_params), wv_size)),
                    name='reshape', inputs=wv_params.keys(), merge_mode='concat')
     else:
+        # -- removal for backend compatibility
         # g.add_node(Reshape((-1, sentence_len, len(wv_params), wv_size)),
         g.add_node(Reshape((paragraph_len, sentence_len, len(wv_params), wv_size)),
                    name='reshape', input=wv_params.keys()[0])
