@@ -25,7 +25,7 @@ from six.moves import zip
 
 from keras.layers.core import Layer
 
-if theano.config.device[:3] == 'gpu'
+if theano.config.device[:3] == 'gpu':
     from theano.sandbox.cuda import dnn
 
 def conv_output_length(input_length, filter_size, border_mode, stride):
