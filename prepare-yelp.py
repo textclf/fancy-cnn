@@ -88,22 +88,22 @@ if __name__ == '__main__':
 
     log('normalizing training inputs...')
     train_repr = normalize_sos(
-						[
-								normalize_sos(review, WORDS_PER_SENTENCE)
-								for review in gb.get_indices(train_text_sentences)
+                        [
+                                normalize_sos(review, WORDS_PER_SENTENCE)
+                                for review in gb.get_indices(train_text_sentences)
                         ],
-			SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
-		)
+            SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
+        )
 
     train_text = np.array(train_repr)
 
     log('normalizing testing inputs...')
     test_repr = normalize_sos(
-						[
-							normalize_sos(review, WORDS_PER_SENTENCE)
-							for review in gb.get_indices(test_text_sentences)
-						],
-		SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
+                        [
+                            normalize_sos(review, WORDS_PER_SENTENCE)
+                            for review in gb.get_indices(test_text_sentences)
+                        ],
+        SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
     )
 
     test_text = np.array(test_repr)
