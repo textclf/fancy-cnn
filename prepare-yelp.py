@@ -47,7 +47,7 @@ NUM_TEST_REVIEWS = None
 WORDS_PER_SENTENCE = 20
 SENTENCES_PER_PARAGRAPH = 20
 
-WV_FILE = './data/wv/IMDB-GloVe-100dim.txt'
+WV_FILE = './data/wv/glove.42B.300d.120000.txt'
 
 log('Importing spaCy...')
 from spacy.en import English

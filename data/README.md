@@ -1,3 +1,3 @@
 # Data Folder
 
-Put the IMDB dataset in here.
+Folder to hold word vector data. Hosted with `git lfs`, so you will need to `git lfs fetch origin` once you check this out.

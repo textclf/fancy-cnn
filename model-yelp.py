@@ -53,9 +53,16 @@ if __name__ == '__main__':
     log('Loading testing data')
 
     # -- testing data
-    test['text'] = np.load('Yelp_test_glove_X.npy')
-    test['text'] = test['text'].reshape(test['text'].shape[0], -1)
-    test['labels'] = np.load('Yelp_test_glove_y.npy')
+    # test['text'] = np.load('Yelp_test_glove_X.npy')
+    # test['text'] = test['text'].reshape(test['text'].shape[0], -1)
+    # test['labels'] = np.load('Yelp_test_glove_y.npy')
+
+    ntrain = (2 * train.shape[0]) / 3
+    test['text'] = train['text'][ntrain:]
+    test['labels'] = train['labels'][ntrain:]
+
+    train['text'] = train['text'][:ntrain]
+    train['labels'] = train['labels'][:ntrain]
 
     log('Loading Yelp trained word vectors')
     gb = pickle.load(open(WV_FILE, 'rb'))
