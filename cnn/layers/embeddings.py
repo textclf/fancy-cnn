@@ -17,8 +17,7 @@ class ModifiedUnitNorm(Constraint):
         self.skip = skip
     def __call__(self, p):
         if self.skip:
-            p[1:] /= K.sqrt(K.sum(K.square(p[1:]), axis=-1, keepdims=True))
-            return p
+            return K.clip(p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)), 1e-4, 10000)
         return p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True))
 
 def make_embedding(vocab_size, wv_size, init=None, fixed=False, constraint=ModifiedUnitNorm(True), **kwargs):
