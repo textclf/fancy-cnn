@@ -8,9 +8,19 @@ into a 5D tensor across multi-sentence embeddings.
 from keras.layers.containers import Graph as SubGraph
 from keras.layers.core import Permute, Reshape
 from keras.layers.embeddings import Embedding
+from keras.constraints import Constraint
 from .version import KERAS_BACKEND
 
-def make_embedding(vocab_size, wv_size, init=None, fixed=False, **kwargs):
+class ModifiedUnitNorm(Constraint):
+    def __init__(self, skip=True):
+        self.skip = skip
+    def __call__(self, p):
+        if self.skip:
+            p[1:] /= K.sqrt(K.sum(K.square(p[1:]), axis=-1, keepdims=True))
+            return p
+        return p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True))
+
+def make_embedding(vocab_size, wv_size, init=None, fixed=False, constraint=ModifiedUnitNorm(True), **kwargs):
     '''
     Takes parameters and makes a word vector embedding
 
@@ -31,9 +41,9 @@ def make_embedding(vocab_size, wv_size, init=None, fixed=False, **kwargs):
         a Keras Embedding layer
     '''
     if (init is not None) and len(init.shape) == 2:
-        emb = Embedding(vocab_size, wv_size, weights=[init]) # keras needs a list for initializations
+        emb = Embedding(vocab_size, wv_size, weights=[init], W_constraint=constraint) # keras needs a list for initializations
     else:
-        emb = Embedding(vocab_size, wv_size) # keras needs a list for initializations
+        emb = Embedding(vocab_size, wv_size, W_constraint=constraint) # keras needs a list for initializations
     if fixed:
         emb.trainable = False
         # emb.params = []
