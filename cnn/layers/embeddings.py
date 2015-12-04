@@ -15,7 +15,7 @@ from .version import KERAS_BACKEND
 class ConstNorm(Constraint):
     def __init__(self, s=3, skip=True):
         self.skip = skip
-        self.s = s
+        self.s = K.variable(s, name='s_constraint')
     def __call__(self, p):
         if self.skip:
             return self.s * (p / K.clip(K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)), 0.5, 100))
