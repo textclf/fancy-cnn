@@ -138,8 +138,8 @@ if __name__ == '__main__':
 
 
     # -- parameters to tune and set
-    WORDS_PER_SENTENCE = 30
-    SENTENCES_PER_PARAGRAPH = 30
+    WORDS_PER_SENTENCE = 50
+    SENTENCES_PER_PARAGRAPH = 50
     PREPEND = False
  
     log('normalizing training inputs...')
