@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # -- flatten across paragraph dimension, will later be reconstructed in the embedding
     
 
-    weights = 1.0 * ((train['text4imdb'] > 0) | (train['text4global'] > 0)
+    weights = 1.0 * ((train['text4imdb'] > 0) | (train['text4global'] > 0))
 
     del shuff
 
@@ -105,9 +105,13 @@ if __name__ == '__main__':
 
     log('Making embedding')
     
+    seen_inputs = set()
+
     for name, params in WV_PARAMS.iteritems():
         # -- add each word vector channel
-        graph.add_input(params['input_name'], (SENTENCE_LENGTH * PARAGRAPH_LENGTH, ), dtype='int')
+        if params['input_name'] not in seen_inputs:
+            seen_inputs.add(params['input_name'])
+            graph.add_input(params['input_name'], (SENTENCE_LENGTH * PARAGRAPH_LENGTH, ), dtype='int')
 
         # -- create the embedding!
         graph.add_node(make_embedding(wv_size=300, **params), name=name, input=params['input_name'])
