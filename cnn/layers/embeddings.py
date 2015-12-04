@@ -12,15 +12,21 @@ from keras.constraints import Constraint
 import keras.backend as K
 from .version import KERAS_BACKEND
 
-class ModifiedUnitNorm(Constraint):
-    def __init__(self, skip=True):
+class ConstNorm(Constraint):
+    def __init__(self, s=3, skip=True):
         self.skip = skip
+        self.s = s
     def __call__(self, p):
         if self.skip:
-            return K.clip(p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)), 1e-4, 10000)
-        return p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True))
+            return s * (p / K.clip(K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)), 0.5, 100))
+        return s * (p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)))
 
-def make_embedding(vocab_size, wv_size, init=None, fixed=False, constraint=ModifiedUnitNorm(True), **kwargs):
+    def get_config(self):
+        return {"name": self.__class__.__name__,
+                "skip": self.skip,
+                "s" : self.s}
+
+def make_embedding(vocab_size, wv_size, init=None, fixed=False, constraint=ConstNorm(True), **kwargs):
     '''
     Takes parameters and makes a word vector embedding
 
