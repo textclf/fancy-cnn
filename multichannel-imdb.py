@@ -173,7 +173,7 @@ if __name__ == '__main__':
             }, 
             validation_split=0.35, batch_size=16, nb_epoch=100, 
             verbose=True, # -- for logging purposes
-            # sample_weight = {'prediction' : weights}, 
+            sample_weight = {'prediction' : weights}, 
             callbacks = 
                    [
                        EarlyStopping(verbose=True, patience=30, monitor='val_loss'),
