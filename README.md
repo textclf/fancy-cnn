@@ -4,6 +4,8 @@ Convolutional Neural Networks for multi-sentence sentiment analysis (Stanford CS
 ##General Considerations
 First off, this class of sequential convolutional networks is quite `GEMM` intensive, and *really* isn't suited to a CPU. You also *really* should use `CuDNN` when training. 
 
+Bleeding edge installations of Theano and Keras are required.
+
 For reference: 
 
 * On a 2.6 GHz Intel Core i7, one epoch of IMDB training takes >10,000 secocnds

@@ -73,7 +73,7 @@ class GloVeBox(object):
         self._nn = None
         return self
 
-    def build(self, zero_token=False, normalize=True):
+    def build(self, zero_token=False, normalize_variance=False, normalize_norm=False):
         if (self._vector_file is None):
             raise GloVeException('Need to specify input vector and vocab files before building')
 
@@ -144,8 +144,8 @@ class GloVeBox(object):
         except KeyError:
             self.W[-1, :] = self.W[:-1, :].mean(axis=0)
 
-        if normalize:
-            log('Normalizing vectors...')
+        if normalize_variance:
+            log('Normalizing vectors by variance...')
             # normalize each word vector to unit variance
 
             self.W[0, :] += 1
@@ -154,6 +154,14 @@ class GloVeBox(object):
             W_norm = (self.W.T / d).T
             self.W = W_norm
             self.W[0, :] = 0
+        if normalize_norm:
+            log('Normalizing vectors by norm...')
+            # normalize each word vector to unit variance
+            ptr = 0
+            if zero_token:
+                ptr = 1
+
+            self.W[ptr:] /= np.linalg.norm(self.W[ptr:], axis=1)[:, np.newaxis]
         else:
             log('No vector normalization performed...')
         self.vocab = words

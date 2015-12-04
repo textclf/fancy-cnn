@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # -- flatten across paragraph dimension, will later be reconstructed in the embedding
     
 
-    # weights = 1.0 * (train['text'] > 0)
+    weights = 1.0 * ((train['text4imdb'] > 0) | (train['text4global'] > 0)
 
     del shuff
 
@@ -85,13 +85,20 @@ if __name__ == '__main__':
             'vocab_size' : gb_global.W.shape[0],
             'init' : gb_global.W,
             'fixed' : False
+        },
+        'fixed_glove_vectors' : 
+        {
+            'input_name' : 'glove_input',
+            'vocab_size' : gb_global.W.shape[0],
+            'init' : gb_global.W,
+            'fixed' : True
         }
     }
 
-    NGRAMS = [4, 5, 6]
-    NFILTERS = 10
-    SENTENCE_LENGTH = 30
-    PARAGRAPH_LENGTH = 30
+    NGRAMS = [1, 3, 4, 5, 6, 7, 9]
+    NFILTERS = 64
+    SENTENCE_LENGTH = 50
+    PARAGRAPH_LENGTH = 50
 
     log('Making graph model')
     graph = Graph()
@@ -123,7 +130,7 @@ if __name__ == '__main__':
             name='maxpool{}gram'.format(n), input='conv{}gram'.format(n))
 
         graph.add_node(
-            Dropout(0.7),
+            Dropout(0.79),
             name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n))    
 
         graph.add_node(
@@ -131,13 +138,23 @@ if __name__ == '__main__':
             name='flatten{}gram'.format(n), input='dropout{}gram'.format(n))
 
     log('Adding bi-directional GRU')
-    graph.add_node(GRU(25), name='gru_forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
-    graph.add_node(GRU(25, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
+    graph.add_node(GRU(45), name='gru_forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
+    graph.add_node(GRU(45, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
     # graph.add_node(GRU(16), name='gru', input='flatten4gram')
 
-    graph.add_node(Dropout(0.5), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
+    ADDITIONAL_FC = False
 
-    graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='gru_dropout')
+    graph.add_node(Dropout(0.7), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
+
+    if ADDITIONAL_FC:
+
+        graph.add_node(MaxoutDense(32, 8, init='he_normal'), name='maxout', input='gru_dropout')
+
+        graph.add_node(Dropout(0.5), name='maxout_dropout', input='maxout')
+
+        graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='maxout_dropout')
+    else:
+        graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='gru_dropout')
 
     graph.add_output(name='prediction', input='probability')
 
@@ -176,8 +193,3 @@ if __name__ == '__main__':
 
     log('Test set accuracy of {}%.'.format(acc * 100.0))
     log('Test set error of {}%. Exiting...'.format((1 - acc) * 100.0))
-
-
-
-
-
