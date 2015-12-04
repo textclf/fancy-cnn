@@ -18,8 +18,8 @@ class ConstNorm(Constraint):
         self.s = s
     def __call__(self, p):
         if self.skip:
-            return s * (p / K.clip(K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)), 0.5, 100))
-        return s * (p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)))
+            return self.s * (p / K.clip(K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)), 0.5, 100))
+        return self.s * (p / K.sqrt(K.sum(K.square(p), axis=-1, keepdims=True)))
 
     def get_config(self):
         return {"name": self.__class__.__name__,
