@@ -9,6 +9,7 @@ from keras.layers.containers import Graph as SubGraph
 from keras.layers.core import Permute, Reshape
 from keras.layers.embeddings import Embedding
 from keras.constraints import Constraint
+import keras.backend as K
 from .version import KERAS_BACKEND
 
 class ModifiedUnitNorm(Constraint):
