@@ -85,18 +85,19 @@ if __name__ == '__main__':
             'vocab_size' : gb_global.W.shape[0],
             'init' : gb_global.W,
             'fixed' : False
-        },
-        'fixed_glove_vectors' : 
-        {
-            'input_name' : 'glove_input',
-            'vocab_size' : gb_global.W.shape[0],
-            'init' : gb_global.W,
-            'fixed' : True
         }
+        # ,
+        # 'fixed_glove_vectors' : 
+        # {
+        #     'input_name' : 'glove_input',
+        #     'vocab_size' : gb_global.W.shape[0],
+        #     'init' : gb_global.W,
+        #     'fixed' : True
+        # }
     }
 
-    NGRAMS = [1, 3, 4, 5, 6, 7, 9]
-    NFILTERS = 64
+    NGRAMS = [3, 4, 5, 7]
+    NFILTERS = 100
     SENTENCE_LENGTH = 50
     PARAGRAPH_LENGTH = 50
 
