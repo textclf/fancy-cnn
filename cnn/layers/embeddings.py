@@ -26,7 +26,7 @@ class ConstNorm(Constraint):
                 "skip": self.skip,
                 "s" : self.s}
 
-def make_embedding(vocab_size, wv_size, init=None, fixed=False, constraint=ConstNorm(True), **kwargs):
+def make_embedding(vocab_size, wv_size, init=None, fixed=False, constraint=ConstNorm(3.0, True), **kwargs):
     '''
     Takes parameters and makes a word vector embedding
 

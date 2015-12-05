@@ -1,7 +1,8 @@
 try:
     from spacy.en import English
 except ImportError:
-    print '[!] You need to install nltk (http://nltk.org/index.html) and Spacy'
+    print '[!] You need to install spaCy! Visit spacy.io/#install'
+
 
 # Spacy.en provides a faster tokenizer than nltk
 nlp = English()

@@ -76,14 +76,14 @@ if __name__ == '__main__':
         {
             'input_name' : 'imdb_input',
             'vocab_size' : gb.W.shape[0],
-            'init' : gb.W,
+            'init' : 2 * gb.W,
             'fixed' : False
         },
         'glove_vectors' :
         {
             'input_name' : 'glove_input',
             'vocab_size' : gb_global.W.shape[0],
-            'init' : gb_global.W,
+            'init' : 2 * gb_global.W,
             'fixed' : False
         }
         # ,
@@ -158,6 +158,7 @@ if __name__ == '__main__':
         graph.add_node(Dropout(0.5), name='maxout_dropout', input='maxout')
 
         graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='maxout_dropout')
+
     else:
         graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='gru_dropout')
 
