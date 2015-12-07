@@ -5,6 +5,7 @@ from keras.layers.core import Dense, Dropout, MaxoutDense, Activation
 from keras.layers.advanced_activations import PReLU
 from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
 from keras.optimizers import SGD
+from keras.regularizers import l2
 
 from cnn.layers.convolutions import *
 from cnn.layers.embeddings import *
@@ -27,7 +28,7 @@ if __name__ == '__main__':
     WV_FILE = './data/wv/IMDB-GloVe-300dim-glovebox.pkl'
     WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
 
-    MODEL_FILE = './test-model.h5'
+    MODEL_FILE = './imdb-model-with-maxout.h5'
 
     # -- load in all the data
     train, test = {}, {}
@@ -48,9 +49,6 @@ if __name__ == '__main__':
             train[k] = train[k].reshape(train[k].shape[0], -1)
 
     # -- flatten across paragraph dimension, will later be reconstructed in the embedding
-    
-
-    weights = 1.0 * ((train['text4imdb'] > 0) | (train['text4global'] > 0))
 
     del shuff
 
@@ -76,14 +74,14 @@ if __name__ == '__main__':
         {
             'input_name' : 'imdb_input',
             'vocab_size' : gb.W.shape[0],
-            'init' : 2 * gb.W,
+            'init' : gb.W,
             'fixed' : False
         },
         'glove_vectors' :
         {
             'input_name' : 'glove_input',
             'vocab_size' : gb_global.W.shape[0],
-            'init' : 2 * gb_global.W,
+            'init' : gb_global.W,
             'fixed' : False
         }
         # ,
@@ -96,8 +94,8 @@ if __name__ == '__main__':
         # }
     }
 
-    NGRAMS = [3, 4, 5, 7]
-    NFILTERS = 100
+    NGRAMS = [2, 3, 4, 5, 7]
+    NFILTERS = 32 * 3
     SENTENCE_LENGTH = 50
     PARAGRAPH_LENGTH = 50
 
@@ -127,7 +125,8 @@ if __name__ == '__main__':
     # for n in [4, 5]:
     for n in NGRAMS:
         graph.add_node(
-            TimeDistributedConvolution2D(NFILTERS, n, WV_PARAMS['glove_vectors']['init'].shape[1], activation='relu'), 
+            TimeDistributedConvolution2D(NFILTERS, n, WV_PARAMS['glove_vectors']['init'].shape[1], W_regularizer=l2(0.0001), 
+                activation='relu'), 
             name='conv{}gram'.format(n), input='embedding')
 
         graph.add_node(
@@ -135,7 +134,7 @@ if __name__ == '__main__':
             name='maxpool{}gram'.format(n), input='conv{}gram'.format(n))
 
         graph.add_node(
-            Dropout(0.79),
+            Dropout(0.15),
             name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n))    
 
         graph.add_node(
@@ -143,30 +142,27 @@ if __name__ == '__main__':
             name='flatten{}gram'.format(n), input='dropout{}gram'.format(n))
 
     log('Adding bi-directional GRU')
-    graph.add_node(GRU(45), name='gru_forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
-    graph.add_node(GRU(45, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
+    graph.add_node(GRU(72), name='gru_forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
+    graph.add_node(GRU(72, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
     # graph.add_node(GRU(16), name='gru', input='flatten4gram')
 
-    ADDITIONAL_FC = False
+    ADDITIONAL_FC = True
 
     graph.add_node(Dropout(0.7), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
 
     if ADDITIONAL_FC:
 
-        graph.add_node(MaxoutDense(32, 8, init='he_normal'), name='maxout', input='gru_dropout')
+        graph.add_node(MaxoutDense(64, 16, init='he_uniform'), name='maxout', input='gru_dropout')
 
         graph.add_node(Dropout(0.5), name='maxout_dropout', input='maxout')
 
         graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='maxout_dropout')
-
     else:
         graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='gru_dropout')
 
     graph.add_output(name='prediction', input='probability')
 
     log('Compiling model (Veuillez patienter)...')
-    sgd = SGD(lr=0.01, momentum=0.8, decay=0.0001, nesterov=True)
-    # graph.compile(sgd, {'prediction': 'binary_crossentropy'})
     graph.compile('rmsprop', {'prediction': 'binary_crossentropy'})
 
     log('Fitting! Hit CTRL-C to stop early...')
@@ -177,9 +173,8 @@ if __name__ == '__main__':
                 'glove_input' : train['text4global'], 
                 'prediction': train['labels']
             }, 
-            validation_split=0.35, batch_size=16, nb_epoch=100, 
+            validation_split=0.2, batch_size=32, nb_epoch=100, 
             verbose=True, # -- for logging purposes
-            sample_weight = {'prediction' : weights}, 
             callbacks = 
                    [
                        EarlyStopping(verbose=True, patience=30, monitor='val_loss'),
@@ -188,12 +183,14 @@ if __name__ == '__main__':
            )
     except KeyboardInterrupt:
         log('Training stopped early!')
+    
 
     log('Loading best weights...')
     graph.load_weights(MODEL_FILE)
 
     log('getting predictions on the test set')
     yhat = graph.predict({'imdb_input' : test['text4imdb'], 'glove_input' : test['text4global'], }, verbose=True, batch_size=50)
+
 
     acc = ((yhat['prediction'].ravel() > 0.5) == (test['labels'] > 0.5)).mean()
 
