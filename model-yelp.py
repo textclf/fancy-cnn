@@ -26,7 +26,8 @@ def log(msg, logger=logger):
 
 if __name__ == '__main__':
 
-    WV_FILE = './data/wv/glove.42B.300d.120000-glovebox.pkl'
+    WV_FILE = './data/wv/Yelp-GloVe-300dim-glovebox.pkl'
+    WV_GLOBAL_FILE = './data/wv/glove.42B.300d.120000-glovebox.pkl'
     MODEL_FILE = './test-model.h5'
 
     # -- load in all the data
@@ -53,16 +54,16 @@ if __name__ == '__main__':
     log('Loading testing data')
 
     # -- testing data
-    # test['text'] = np.load('Yelp_test_glove_X.npy')
-    # test['text'] = test['text'].reshape(test['text'].shape[0], -1)
-    # test['labels'] = np.load('Yelp_test_glove_y.npy')
+    test['text'] = np.load('Yelp_test_glove_X.npy')
+    test['text'] = test['text'].reshape(test['text'].shape[0], -1)
+    test['labels'] = np.load('Yelp_test_glove_y.npy')
 
-    ntrain = (2 * train.shape[0]) / 3
-    test['text'] = train['text'][ntrain:]
-    test['labels'] = train['labels'][ntrain:]
+    #ntrain = (2 * train.shape[0]) / 3
+    #test['text'] = train['text'][ntrain:]
+    #test['labels'] = train['labels'][ntrain:]
 
-    train['text'] = train['text'][:ntrain]
-    train['labels'] = train['labels'][:ntrain]
+    #train['text'] = train['text'][:ntrain]
+    #train['labels'] = train['labels'][:ntrain]
 
     log('Loading Yelp trained word vectors')
     gb = pickle.load(open(WV_FILE, 'rb'))
@@ -76,10 +77,10 @@ if __name__ == '__main__':
         }
     }
 
-    NGRAMS = [3, 4, 5, 6]
-    NFILTERS = 21
-    SENTENCE_LENGTH = 20
-    PARAGRAPH_LENGTH = 20
+    NGRAMS = [1, 2, 3, 4, 5, 6]
+    NFILTERS = 32
+    SENTENCE_LENGTH = 50
+    PARAGRAPH_LENGTH = 50
 
     log('Making graph model')
     graph = Graph()
@@ -105,7 +106,7 @@ if __name__ == '__main__':
             name='maxpool{}gram'.format(n), input='conv{}gram'.format(n))
 
         graph.add_node(
-            Dropout(0.7),
+            Dropout(0.6),
             name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n))
 
         graph.add_node(
@@ -117,7 +118,7 @@ if __name__ == '__main__':
     graph.add_node(GRU(25, go_backwards=True), name='gru_backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
     # graph.add_node(GRU(16), name='gru', input='flatten4gram')
 
-    graph.add_node(Dropout(0.5), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
+    graph.add_node(Dropout(0.6), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
 
     graph.add_node(Dense(1, activation='sigmoid'), name='probability', input='gru_dropout')
 
@@ -131,7 +132,8 @@ if __name__ == '__main__':
         history = graph.fit(
             {'text': train['text'], 'prediction': train['labels']},
             validation_split=0.35, batch_size=28, nb_epoch=50,
-            sample_weight = {'prediction' : weights}, callbacks =
+            #sample_weight = {'prediction' : weights},
+            callbacks =
                    [
                        EarlyStopping(verbose=True, patience=30, monitor='val_loss'),
                        ModelCheckpoint(MODEL_FILE, monitor='val_loss', verbose=True, save_best_only=True)

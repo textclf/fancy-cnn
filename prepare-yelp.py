@@ -38,7 +38,7 @@ NUM_TRAIN_REVIEWS = None # None if want to use all
 NUM_TEST_REVIEWS = None
 
 WV_FILE = './data/wv/Yelp-GloVe-300dim.txt'
-GLOBAL_WV_FILE = './data/wv/glove.42B.300d.120000.txt'
+#GLOBAL_WV_FILE = './data/wv/glove.42B.300d.120000.txt'
 
 
 def parallel_run(f, parms):
@@ -77,25 +77,23 @@ if __name__ == '__main__':
     gb = GloVeBox(WV_FILE)
     gb.build(zero_token=True, normalize_variance=False, normalize_norm=True)#.index()
 
-    log('Building global word vectors from {}'.format(GLOBAL_WV_FILE))
-    global_gb = GloVeBox(GLOBAL_WV_FILE)
-    global_gb.build(zero_token=True, normalize_variance=False, normalize_norm=True)#.index()
+ #   log('Building global word vectors from {}'.format(GLOBAL_WV_FILE))
+ #   global_gb = GloVeBox(GLOBAL_WV_FILE)
+ #   global_gb.build(zero_token=True, normalize_variance=False, normalize_norm=True)#.index()
 
     log('writing GloVeBox pickle...')
     pickle.dump(gb, open(WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
-    pickle.dump(global_gb, open(GLOBAL_WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
+#    pickle.dump(global_gb, open(GLOBAL_WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
 
     log('Loading data...')
     with open(TRAIN_FILE) as file:
         [train_reviews, train_labels] = pickle.load(file)
     with open(DEV_FILE) as file:
         [dev_reviews, dev_labels] = pickle.load(file)
-    with open(TEST_FILE) as file:
-        [test_reviews, test_labels] = pickle.load(file)
 
     # -- parameters to tune and set
-    WORDS_PER_SENTENCE = 150
-    SENTENCES_PER_PARAGRAPH = 60
+    WORDS_PER_SENTENCE = 50
+    SENTENCES_PER_PARAGRAPH = 50
     PREPEND = False
 
     log('Merging data...')
@@ -105,13 +103,9 @@ if __name__ == '__main__':
     train_labels.extend(dev_labels)
     train_labels = np.asarray(train_labels[:NUM_TRAIN_REVIEWS])
 
-    test_reviews = test_reviews[:NUM_TEST_REVIEWS]
-    test_labels = np.asarray(test_labels[:NUM_TEST_REVIEWS])
-
 
     log('Splitting training data into paragraphs')
     train_text_sentences = parallel_run(parse_paragraph, train_reviews)
-    test_text_sentences = parallel_run(parse_paragraph, test_reviews)
 
 
     log('normalizing training inputs...')
@@ -127,16 +121,28 @@ if __name__ == '__main__':
 
     train_text = np.array(train_repr)
 
-    log('  --> building global word vector representation')
-    global_train_repr = normalize_sos(
-                            [
-                                normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
-                                for review in global_gb.get_indices(train_text_sentences)
-                            ], 
-            SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
-        )
+#    log('  --> building global word vector representation')
+#    global_train_repr = normalize_sos(
+#                            [
+#                                normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
+#                                for review in global_gb.get_indices(train_text_sentences)
+#                            ], 
+#            SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
+#        )
 
-    global_train_text = np.array(global_train_repr)
+#    global_train_text = np.array(global_train_repr)
+
+    # -- training data save
+    np.save('Yelp_train_glove_X.npy', train_text)
+ #   np.save('Yelp_train_global_glove_X.npy', global_train_text)
+    np.save('Yelp_train_glove_y.npy', train_labels)
+
+    with open(TEST_FILE) as file:
+        [test_reviews, test_labels] = pickle.load(file)
+
+    test_reviews = test_reviews[:NUM_TEST_REVIEWS]
+    test_labels = np.asarray(test_labels[:NUM_TEST_REVIEWS])
+    test_text_sentences = parallel_run(parse_paragraph, test_reviews)
 
 
     log('normalizing testing inputs...')
@@ -149,27 +155,20 @@ if __name__ == '__main__':
         SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
     )
     test_text = np.array(test_repr)
-    log('  --> building global word vector representation')
-    global_test_repr = normalize_sos(
-                        [
-                            normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
-                            for review in global_gb.get_indices(test_text_sentences)
-                        ], 
-        SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
-    )
+#    log('  --> building global word vector representation')
+  #  global_test_repr = normalize_sos(
+  #                      [
+  #                          normalize_sos(review, WORDS_PER_SENTENCE, prepend=PREPEND) 
+  #                          for review in global_gb.get_indices(test_text_sentences)
+  #                      ], 
+  #      SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE, PREPEND
+  #  )
 
-    global_test_text = np.array(global_test_repr)
+  #  global_test_text = np.array(global_test_repr)
 
-    log('Saving...')
-
-    # -- training data save
-    np.save('Yelp_train_glove_X.npy', train_text)
-    np.save('Yelp_train_global_glove_X.npy', global_train_text)
-    np.save('Yelp_train_glove_y.npy', train_labels)
 
     # -- testing data save
     np.save('Yelp_test_glove_X.npy', test_text)
-    np.save('Yelp_test_global_glove_X.npy', global_test_text)
+  #  np.save('Yelp_test_global_glove_X.npy', global_test_text)
     np.save('Yelp_test_glove_y.npy', test_labels)
-
-
+    
