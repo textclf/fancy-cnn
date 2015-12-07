@@ -24,9 +24,9 @@ to your `.theanorc`.
 
 ## IMDB Dataset
 
-Run `python prepare-imdb.py` to prepare your data!
+Run `python prepare-imdb.py` to prepare your data! Look at [this](https://github.com/lukedeo/fancy-cnn/blob/master/multichannel-imdb.py) to see how to train the IMDB model.
 
 ## Yelp Humor Dataset
 
-Run `python prepare-yelp.py` to prepare your data!
+Run `python prepare-yelp.py` to prepare your data! Look at [this](https://github.com/lukedeo/fancy-cnn/blob/master/model-yelp.py) to see how to train a model on Yelp.
 
