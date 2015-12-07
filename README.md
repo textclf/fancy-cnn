@@ -8,9 +8,10 @@ Bleeding edge installations of Theano and Keras are required.
 
 For reference: 
 
-* On a 2.6 GHz Intel Core i7, one epoch of IMDB training takes >10,000 secocnds
-* On a GRID K520 without CuDNN, one epoch of IMDB training takes ~2,000 secocnds
-* On a GRID K520 *with* CuDNN, one epoch of IMDB training takes ~250 secocnds
+* On a 2.6 GHz Intel Core i7, one epoch of IMDB training takes ~3.5 days
+* On a GRID K520 without CuDNN, one epoch of IMDB training takes ~1 hour
+* On a GRID K520 *with* CuDNN, one epoch of IMDB training takes ~30 minutes
+* On a GTX Titan X with CuDNN, one epoch of IMDB training takes ~11 minutes
 
 If you want to use `CuDNN`, you really should also
 
