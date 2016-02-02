@@ -129,12 +129,12 @@ if __name__ == '__main__':
     train['paragraph_neg'], train['paragraph_pos'] = parallel_run(parse_paragraph, train_neg), parallel_run(parse_paragraph, train_pos)
 
     log('Getting testing examples')
-    #test_neg = get_data(positive=False, which='test')
-    #test_pos = get_data(which='test')
+    test_neg = get_data(positive=False, which='test')
+    test_pos = get_data(which='test')
 
     log('Splitting testing data into paragraphs')
     # tok_neg_test, tok_pos_test = parallel_run(parse_tokens, test_neg), parallel_run(parse_tokens, test_pos)
-    #test['paragraph_neg'], test['paragraph_pos'] = parallel_run(parse_paragraph, test_neg), parallel_run(parse_paragraph, test_pos)
+    test['paragraph_neg'], test['paragraph_pos'] = parallel_run(parse_paragraph, test_neg), parallel_run(parse_paragraph, test_pos)
 
 
     # -- parameters to tune and set
