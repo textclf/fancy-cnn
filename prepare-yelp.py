@@ -6,9 +6,11 @@ description: prepare the yelp data for training in DNNs
 
 import cPickle as pickle
 import logging
-import numpy as np
 from multiprocessing import Pool
-from cnn.wordvectors.glove import GloVeBox
+
+import numpy as np
+
+from wordvectors.glove import GloVeBox
 from util.misc import normalize_sos
 
 LOGGER_PREFIX = ' %s'

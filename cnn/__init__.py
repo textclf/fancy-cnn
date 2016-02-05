@@ -1,2 +1,1 @@
-import wordvectors
 import layers

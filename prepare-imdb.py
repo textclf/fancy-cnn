@@ -21,7 +21,7 @@ import numpy as np
 log('Importing spaCy...')
 from spacy.en import English
 
-from cnn.wordvectors.glove import GloVeBox
+from wordvectors.glove import GloVeBox
 from util.misc import normalize_sos
 
 
