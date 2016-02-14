@@ -16,15 +16,8 @@ LOG_FILE = './log-model-gru'
 train_reviews = np.load("IMDB_train_fulltext_glove_X.npy")
 train_labels = np.load("IMDB_train_fulltext_glove_y.npy")
 
-
-train_reviews = train_reviews[:50]
-train_labels = train_labels[:50]
-
 test_reviews = np.load("IMDB_test_fulltext_glove_X.npy")
 test_labels = np.load("IMDB_test_fulltext_glove_y.npy")
-
-test_reviews = test_reviews[:50]
-test_labels = test_labels[:50]
 
 WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
 
