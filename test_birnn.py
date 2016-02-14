@@ -15,8 +15,16 @@ LOG_FILE = './log-model-gru'
 # Read back data
 train_reviews = np.load("IMDB_train_fulltext_glove_X.npy")
 train_labels = np.load("IMDB_train_fulltext_glove_y.npy")
+
+
+train_reviews = train_reviews[:50]
+train_labels = train_labels[:50]
+
 test_reviews = np.load("IMDB_test_fulltext_glove_X.npy")
 test_labels = np.load("IMDB_test_fulltext_glove_y.npy")
+
+test_reviews = test_reviews[:50]
+test_labels = test_labels[:50]
 
 WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
 
@@ -42,7 +50,7 @@ fit_params = {
         'prediction': train_labels
     },
     "batch_size": 32,
-    "nb_epoch": 15,
+    "nb_epoch": 5,
     "verbose": True,
     "validation_split": 0.1,
     "callbacks": [EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
@@ -50,5 +58,5 @@ fit_params = {
 }
 
 history = train_neural.train_graph(model, fit_params)
-acc = train_neural.test_model(model, test_reviews, test_labels, MODEL_FILE)
+acc = train_neural.test_graph(model, {'input': test_reviews}, 'prediction', test_labels, MODEL_FILE)
 train_neural.write_log(model, history, __file__, acc, LOG_FILE)
