@@ -11,7 +11,7 @@ def train_sequential(model, X, y, where_to_save, fit_params=None):
             "batch_size": 32,
             "nb_epoch": 45,
             "verbose": True,
-            "validation_split": 0.1,
+            "validation_split": 0.15,
             "show_accuracy": True,
             "callbacks": [EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
                           ModelCheckpoint(where_to_save, monitor='val_loss', verbose=True, save_best_only=True)]
