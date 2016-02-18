@@ -7,19 +7,21 @@ from keras.layers.core import Dense, Activation, Dropout, Flatten, Permute
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
 
+import sys
+sys.path.append("..")
 from nn import train_neural
 from cnn.layers.embeddings import *
 
-MODEL_FILE = './imdb-model-cnn-1'
+MODEL_FILE = './yelp-model-cnn-1'
 LOG_FILE = './log-model-cnn-1'
 
 # Read back data
-train_reviews = np.load("IMDB_train_fulltext_glove_X.npy")
-train_labels = np.load("IMDB_train_fulltext_glove_y.npy")
-test_reviews = np.load("IMDB_test_fulltext_glove_X.npy")
-test_labels = np.load("IMDB_test_fulltext_glove_y.npy")
+train_reviews = np.load("../Yelp_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../Yelp_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../Yelp_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../Yelp_funny_test_fulltext_glove_300_y.npy")
 
-WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
+WV_FILE_GLOBAL = '../data/wv/glove.42B.300d.120000-glovebox.pkl'
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 
@@ -30,7 +32,6 @@ emb = Embedding(gb_global.W.shape[0], wv_size, weights=[gb_global.W],
                     input_length=train_reviews.shape[1])
 emb.trainable = False
 model.add(emb)
-#model.add(Permute((2,1)))
 model.add(Convolution1D(64, 3, init='uniform'))
 model.add(Activation('relu'))
 model.add(MaxPooling1D(2))
