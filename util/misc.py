@@ -1,4 +1,32 @@
+from functools import wraps as DECORATOR
+
 import language
+
+
+def memoize(obj):
+    '''
+    A simple method decorator for memoization
+    Usage
+    ------
+    @memoize
+    def myfunction(arg1, arg2):
+        return 2 * arg2 + arg1
+    Internals:
+    ----------
+        This decorator hashes a string representation of the args+kwargs
+        passed to cache preci
+    '''
+    # -- initialize memoization cache
+    cache = obj.cache = {}
+
+    # -- create wrapper around general object function calls
+    @DECORATOR(obj)
+    def memoizer(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = obj(*args, **kwargs)
+        return cache[key]
+    return memoizer
 
 def normalize_sos(sq, sz=30, filler=0, prepend=True):
     '''
