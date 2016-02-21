@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+mkdir -p wv
 cd ./wv
 BASEURL="https://s3-us-west-1.amazonaws.com/textclf/wv/"
 
