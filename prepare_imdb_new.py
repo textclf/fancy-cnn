@@ -45,7 +45,6 @@ if __name__ == '__main__':
     (test_reviews, test_labels) = imdb.get_data(type=ImdbDataHandler.DATA_TEST)
 
     log('Converting to sentences: global word vectors')
-<<<<<<< HEAD
     train_global_wvs_reviews = imdb.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
                                                     WORDS_PER_SENTENCE, global_gb)
     test_global_wvs_reviews = imdb.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
@@ -55,17 +54,6 @@ if __name__ == '__main__':
     train_imdb_wvs_reviews = imdb.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
                                                     WORDS_PER_SENTENCE, gb)
     test_imdb_wvs_reviews = imdb.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
-=======
-    train_global_wvs_reviews = imdb.to_sentence_vectors(train_reviews, SENTENCES_PER_PARAGRAPH,
-                                                    WORDS_PER_SENTENCE, global_gb)
-    test_global_wvs_reviews = imdb.to_sentence_vectors(test_reviews, SENTENCES_PER_PARAGRAPH,
-                                                   WORDS_PER_SENTENCE, global_gb)
-
-    log('Converting to sentences: only imdb word vectors')
-    train_imdb_wvs_reviews = imdb.to_sentence_vectors(train_reviews, SENTENCES_PER_PARAGRAPH,
-                                                    WORDS_PER_SENTENCE, gb)
-    test_imdb_wvs_reviews = imdb.to_sentence_vectors(test_reviews, SENTENCES_PER_PARAGRAPH,
->>>>>>> 584696e581fb4a5ac95d6b752f3723a715f0c4c1
                                                    WORDS_PER_SENTENCE, gb)
 
     # -- training data save
