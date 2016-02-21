@@ -1,10 +1,15 @@
 import cPickle as pickle
-
+import sys
+from os.path import join as path_join
 import numpy as np
+
 from keras.layers.recurrent import GRU
 from keras.models import Sequential, Graph
 from keras.layers.core import Dense, Activation, Dropout
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+
+ROOT_PATH = '..'
+sys.path.append(ROOT_PATH)
 
 from nn import train_neural
 from cnn.layers.embeddings import *
@@ -12,14 +17,15 @@ from cnn.layers.embeddings import *
 MODEL_FILE = './imdb-model-gru-1'
 LOG_FILE = './log-model-gru'
 
+
 # Read back data
-train_reviews = np.load("IMDB_train_fulltext_glove_X.npy")
-train_labels = np.load("IMDB_train_fulltext_glove_y.npy")
+train_reviews = np.load(path_join(ROOT_PREFIX, "IMDB_train_fulltext_glove_X.npy"))
+train_labels = np.load(path_join(ROOT_PREFIX, "IMDB_train_fulltext_glove_y.npy"))
 
-test_reviews = np.load("IMDB_test_fulltext_glove_X.npy")
-test_labels = np.load("IMDB_test_fulltext_glove_y.npy")
+test_reviews = np.load(path_join(ROOT_PREFIX, "IMDB_test_fulltext_glove_X.npy"))
+test_labels = np.load(path_join(ROOT_PREFIX, "IMDB_test_fulltext_glove_y.npy"))
 
-WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
+WV_FILE_GLOBAL = path_join(ROOT_PREFIX, './data/wv/glove.42B.300d.120000-glovebox.pkl')
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 

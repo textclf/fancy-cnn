@@ -1,5 +1,7 @@
 import cPickle as pickle
 import logging
+from os.path import join as path_join
+import sys
 
 import numpy as np
 from keras.layers.recurrent import GRU
@@ -17,6 +19,9 @@ from keras.optimizers import SGD
 
 from keras.regularizers import l2
 
+ROOT_PATH = '..'
+sys.path.append(ROOT_PATH)
+
 from nn import train_neural
 from nn.timedistributed import TimeDistributed
 from cnn.layers.embeddings import *
@@ -32,9 +37,10 @@ def log(msg, logger=logger):
 MODEL_FILE = './imdb-model-rcnn-1'
 LOG_FILE = './log-model-rcnn-1'
 
+
 # Read back data
-WV_FILE_IMDB = './data/wv/IMDB-GloVe-300dim-glovebox.pkl'
-WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
+WV_FILE_IMDB = path_join(ROOT_PATH, './data/wv/IMDB-GloVe-300dim-glovebox.pkl')
+WV_FILE_GLOBAL = path_join(ROOT_PATH, './data/wv/glove.42B.300d.120000-glovebox.pkl')
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 gb_imdb = pickle.load(open(WV_FILE_IMDB, 'rb'))
@@ -44,9 +50,9 @@ train, test = {}, {}
 
 log('Loading training data')
 
-train['text4imdb'] = np.load('IMDB_train_glove_X.npy')
-train['text4global'] = np.load('IMDB_train_global_glove_X.npy')
-train['labels'] = np.load('IMDB_train_glove_y.npy')
+train['text4imdb'] = np.load(path_join(ROOT_PATH, 'IMDB_train_glove_X.npy'))
+train['text4global'] = np.load(path_join(ROOT_PATH, 'IMDB_train_global_glove_X.npy'))
+train['labels'] = np.load(path_join(ROOT_PATH, 'IMDB_train_glove_y.npy'))
 
 log('Shuffling training data')
 shuff = range(train['text4imdb'].shape[0])
@@ -63,13 +69,14 @@ del shuff
 log('Loading testing data')
 
 # -- testing data
-test['text4imdb'] = np.load('IMDB_test_glove_X.npy')
-test['text4imdb'] = test['text4imdb'].reshape(test['text4imdb'].shape[0], -1)
+test['text4imdb'] = np.load(path_join(ROOT_PATH, 'IMDB_test_glove_X.npy'))
+test['text4global'] = np.load(path_join(ROOT_PATH, 'IMDB_test_global_glove_X.npy'))
+test['labels'] = np.load(path_join(ROOT_PATH, 'IMDB_test_glove_y.npy'))
 
-test['text4global'] = np.load('IMDB_test_global_glove_X.npy')
+test['text4imdb'] = test['text4imdb'].reshape(test['text4imdb'].shape[0], -1)
 test['text4global'] = test['text4global'].reshape(test['text4global'].shape[0], -1)
 
-test['labels'] = np.load('IMDB_test_glove_y.npy')
+
 
 
 log('Building model architecture...')
