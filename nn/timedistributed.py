@@ -12,6 +12,10 @@ from keras.layers.core import MaskedLayer
 
 class TimeDistributed(MaskedLayer):
     def __init__(self, layer, input_shape=None, input_dim=None, input_length=None, weights=None, **kwargs):
+        if K._BACKEND == 'tensorflow':
+            import warnings
+            warnings.warn('TimeDistributed() wrapper untested with tensorflow! Use at your own risk.')
+
         self.layer = layer
 
         self.initial_weights = weights
@@ -63,7 +67,13 @@ class TimeDistributed(MaskedLayer):
     def get_output(self, train=False):
         def format_shape(shape):
             if K._BACKEND == 'tensorflow':
-                return map(int, shape)
+                def trf(x):
+                    try:
+                        return int(x)
+                    except TypeError:
+                        return x
+
+                return map(trf, shape)
             return shape
 
         X = self.get_input(train)

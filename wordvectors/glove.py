@@ -170,7 +170,7 @@ class GloVeBox(object):
 
     def _get_w2i(self, w):
         try:
-            return self._w2i[unicode(w)]
+            return self._w2i[w]
         except KeyError:
             return self.W.shape[0] - 1
 
@@ -183,6 +183,8 @@ class GloVeBox(object):
 
     def get_indices(self, obj):
         if isinstance(obj, str) or isinstance(obj, unicode):
+            if isinstance(obj, str):
+                obj = obj2.encode('utf-8')
             return self._get_w2i(obj)
         elif hasattr(obj, '__iter__'):
             return [self.get_indices(o) for o in obj]
