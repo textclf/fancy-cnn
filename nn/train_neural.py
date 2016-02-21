@@ -2,7 +2,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from time import strftime
 import sys
 
-def train_sequential(model, X, y, where_to_save, fit_params=None):
+def train_sequential(model, X, y, where_to_save, fit_params=None, monitor='val_acc'):
     # TODO: DOCUMENT once thoroughly tested
     # Watch out: where_to_save might be inside fit_params
 
@@ -13,8 +13,8 @@ def train_sequential(model, X, y, where_to_save, fit_params=None):
             "verbose": True,
             "validation_split": 0.15,
             "show_accuracy": True,
-            "callbacks": [EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
-                          ModelCheckpoint(where_to_save, monitor='val_loss', verbose=True, save_best_only=True)]
+            "callbacks": [EarlyStopping(verbose=True, patience=5, monitor=monitor),
+                          ModelCheckpoint(where_to_save, monitor=monitor, verbose=True, save_best_only=True)]
         }
     print 'Fitting! Hit CTRL-C to stop early...'
     history = "Nothing to show"
@@ -22,6 +22,7 @@ def train_sequential(model, X, y, where_to_save, fit_params=None):
         history = model.fit(X, y, **fit_params)
     except KeyboardInterrupt:
         print "Training stopped early!"
+        history = model.history
 
     return history
 
@@ -33,6 +34,7 @@ def train_graph(model, fit_params):
     try:
         history = model.fit(**fit_params)
     except KeyboardInterrupt:
+        history = model.history
         print "Training stopped early!"
 
     return history
