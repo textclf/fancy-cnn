@@ -22,6 +22,15 @@ conv.algo_bwd = time_on_shape_change
 ```
 to your `.theanorc`.
 
+## Setup
+
+1. Go to `datasets/aclImdb/`
+2. `./download.sh`
+3. Go to `embeddings/`
+4. `./download.sh`
+
+This gets all the embeddings from `S3` and sets up the IMDB dataset for processing. Yelp instructions forthcoming.
+
 ## IMDB Dataset
 
 Run `python prepare-imdb.py` to prepare your data! Look at [this](https://github.com/lukedeo/fancy-cnn/blob/master/multichannel-imdb.py) to see how to train the IMDB model.
