@@ -9,7 +9,7 @@ import logging
 import numpy as np
 
 from nlpdatahandlers import YelpDataHandler
-from wordvectors.glove import GloVeBox
+from textclf.wordvectors.glove import GloVeBox
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +29,7 @@ YELP_COOL_TRAIN = '../yelp-dataset/TrainSet_cool_88698'
 YELP_COOL_DEV = '../yelp-dataset/DevSet_cool_88698'
 YELP_COOL_TEST = '../yelp-dataset/TestSet_cool_88698'
 
-GLOBAL_WV_FILE = './data/wv/glove.42B.300d.120000.txt'
+GLOBAL_WV_FILE = './embeddings/wv/glove.42B.300d.120000.txt'
 WORDS_PER_TEXT = 300
 
 if __name__ == '__main__':

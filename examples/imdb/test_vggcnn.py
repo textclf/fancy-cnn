@@ -1,19 +1,18 @@
 import cPickle as pickle
+import numpy as np
 from os.path import join as path_join
 import sys
 
-import numpy as np
 from keras.layers.recurrent import GRU
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout, Flatten, Permute
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
 
-ROOT_PATH = '..'
+ROOT_PATH = '../..'
 sys.path.append(ROOT_PATH)
 
-from nn import train_neural
-from cnn.layers.embeddings import *
+from textclf.nn import train_neural
 
 MODEL_FILE = './imdb-model-cnn-1'
 LOG_FILE = './log-model-cnn-1'
@@ -24,7 +23,7 @@ train_labels = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_y.npy"))
 test_reviews = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_X.npy"))
 test_labels = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_y.npy"))
 
-WV_FILE_GLOBAL = './data/wv/glove.42B.300d.120000-glovebox.pkl'
+WV_FILE_GLOBAL = 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl'
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 

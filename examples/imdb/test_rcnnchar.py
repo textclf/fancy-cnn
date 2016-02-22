@@ -1,32 +1,25 @@
 import cPickle as pickle
 import logging
+import numpy as np
 from os.path import join as path_join
 import sys
 
-import numpy as np
-from keras.layers.recurrent import GRU
-from keras.models import Sequential, Graph
 import keras.backend as K
 
+from keras.models import Sequential, Graph
 from keras.layers.containers import Graph as SubGraph
 from keras.layers.containers import Sequential as Stack
-
-from keras.layers.core import Dense, Activation, Dropout, Flatten, Merge, Lambda, Permute, Reshape, MaxoutDense, Highway
-from keras.layers import Lambda, Embedding, GRU, LSTM
-from keras.layers.convolutional import Convolution1D, MaxPooling1D, Convolution2D, MaxPooling2D
-
-from keras.optimizers import SGD
-
+from keras.layers.core import *
+from keras.layers import Embedding
+from keras.layers.convolutional import *
+from keras.layers.recurrent import GRU, LSTM
 from keras.regularizers import l2
 
-ROOT_PATH = '..'
+ROOT_PATH = '../..'
 sys.path.append(ROOT_PATH)
 
-from nn import train_neural
-from nn.timedistributed import TimeDistributed
-from cnn.layers.embeddings import *
-
-from wordvectors.char import CharMapper
+from textclf.nn import train_neural
+from textclf.nn.timedistributed import TimeDistributed
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -38,8 +31,6 @@ def log(msg, logger=logger):
 
 MODEL_FILE = './imdb-model-rcnn-char-1'
 LOG_FILE = './log-model-rcnn-char-1'
-
-train, test = {}, {}
 
 log('Loading training data')
 

@@ -10,7 +10,7 @@ import logging
 
 import numpy as np
 
-from wordvectors.glove import GloVeBox
+from textclf.wordvectors.glove import GloVeBox
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)

@@ -1,26 +1,31 @@
 import cPickle as pickle
-
+import sys
+from os.path import join as path_join
 import numpy as np
+
 from keras.layers.recurrent import GRU
 from keras.models import Sequential, Graph
 from keras.layers.core import Dense, Activation, Dropout
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
-import sys
-sys.path.append("..")
-from nn import train_neural
-from cnn.layers.embeddings import *
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
 
-MODEL_FILE = './yelp-model-birnn-1'
-LOG_FILE = './log-model-birnn-1'
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
+
+MODEL_FILE = './imdb-model-gru-1'
+LOG_FILE = './log-model-gru'
+
 
 # Read back data
-train_reviews = np.load("../Yelp_funny_train_fulltext_glove_300_X.npy")
-train_labels = np.load("../Yelp_funny_train_fulltext_glove_300_y.npy")
-test_reviews = np.load("../Yelp_funny_test_fulltext_glove_300_X.npy")
-test_labels = np.load("../Yelp_funny_test_fulltext_glove_300_y.npy")
+train_reviews = np.load(path_join(ROOT_PREFIX, "IMDB_train_fulltext_glove_X.npy"))
+train_labels = np.load(path_join(ROOT_PREFIX, "IMDB_train_fulltext_glove_y.npy"))
 
-WV_FILE_GLOBAL = '../data/wv/glove.42B.300d.120000-glovebox.pkl'
+test_reviews = np.load(path_join(ROOT_PREFIX, "IMDB_test_fulltext_glove_X.npy"))
+test_labels = np.load(path_join(ROOT_PREFIX, "IMDB_test_fulltext_glove_y.npy"))
+
+WV_FILE_GLOBAL = path_join(ROOT_PREFIX, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 
@@ -44,7 +49,7 @@ fit_params = {
         'prediction': train_labels
     },
     "batch_size": 32,
-    "nb_epoch": 50,
+    "nb_epoch": 5,
     "verbose": True,
     "validation_split": 0.1,
     "callbacks": [EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
