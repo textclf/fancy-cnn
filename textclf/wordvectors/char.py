@@ -1,7 +1,7 @@
 import string
 import sys
-sys.path.append('../')
-from util.misc import memoize
+
+from ..util.misc import memoize
 
 class CharMapper(object):
     '''
