@@ -1,9 +1,5 @@
 import numpy as np
 
-from collections import OrderedDict
-import copy
-from six.moves import zip
-
 from keras import backend as K
 from keras import activations, initializations, regularizers, constraints
 from keras.regularizers import ActivityRegularizer
