@@ -20,6 +20,7 @@ sys.path.append(ROOT_PATH)
 
 from textclf.nn import train_neural
 from textclf.nn.timedistributed import TimeDistributed
+from textclf.wordvectors.char import CharMapper
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
