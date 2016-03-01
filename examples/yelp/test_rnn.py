@@ -1,14 +1,18 @@
 import cPickle as pickle
-
 import numpy as np
+import os
+from os.path import join as path_join
+import sys
+
 from keras.layers.recurrent import GRU
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
 
-import sys
-sys.path.append("..")
-from nn import train_neural
-from cnn.layers.embeddings import *
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
 
 MODEL_FILE = './yelp-model-gru-1'
 LOG_FILE = './log-model-gru-1'
@@ -19,7 +23,7 @@ train_labels = np.load("../Yelp_funny_train_fulltext_glove_300_y.npy")
 test_reviews = np.load("../Yelp_funny_test_fulltext_glove_300_X.npy")
 test_labels = np.load("../Yelp_funny_test_fulltext_glove_300_y.npy")
 
-WV_FILE_GLOBAL = '../data/wv/glove.42B.300d.120000-glovebox.pkl'
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 

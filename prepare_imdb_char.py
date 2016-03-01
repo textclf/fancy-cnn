@@ -10,7 +10,7 @@ import logging
 
 import numpy as np
 
-from wordvectors.char import CharMapper
+from textclf.wordvectors.char import CharMapper
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)

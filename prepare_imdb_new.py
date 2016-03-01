@@ -10,7 +10,7 @@ import logging
 
 import numpy as np
 
-from wordvectors.glove import GloVeBox
+from textclf.wordvectors.glove import GloVeBox
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -19,8 +19,8 @@ def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
 IMDB_DATA = './datasets/aclImdb/aclImdb'
-IMDB_WV_FILE = './data/wv/IMDB-GloVe-300dim.txt'
-GLOBAL_WV_FILE = './data/wv/glove.42B.300d.120000.txt'
+IMDB_WV_FILE = './embeddings/wv/IMDB-GloVe-300dim.txt'
+GLOBAL_WV_FILE = './embeddings/wv/glove.42B.300d.120000.txt'
 WORDS_PER_SENTENCE = 50
 SENTENCES_PER_PARAGRAPH = 50
 PREPEND = False
