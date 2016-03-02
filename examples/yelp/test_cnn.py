@@ -6,6 +6,7 @@ import numpy as np
 from keras.layers.recurrent import GRU
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout, Flatten, Permute
+from keras.layers import Embedding
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
 
@@ -14,14 +15,19 @@ sys.path.append(ROOT_PATH)
 
 from textclf.nn import train_neural
 
-MODEL_FILE = './yelp-model-cnn-1'
-LOG_FILE = './log-model-cnn-1'
+MODEL_FILE = './models/useful/yelp-model-cnn-1'
+LOG_FILE = './outputs/useful/log-model-cnn-1'
 
 # Read back data
-train_reviews = np.load("../../Yelp_funny_train_fulltext_glove_300_X.npy")
-train_labels = np.load("../../Yelp_funny_train_fulltext_glove_300_y.npy")
-test_reviews = np.load("../../Yelp_funny_test_fulltext_glove_300_X.npy")
-test_labels = np.load("../../Yelp_funny_test_fulltext_glove_300_y.npy")
+# train_reviews = np.load("../../Yelp_funny_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_funny_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_funny_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_funny_test_fulltext_glove_300_y.npy")
+
+train_reviews = np.load("../../Yelp_useful_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_useful_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_useful_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_useful_test_fulltext_glove_300_y.npy")
 
 WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
 

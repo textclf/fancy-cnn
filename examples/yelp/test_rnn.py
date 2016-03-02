@@ -14,14 +14,19 @@ sys.path.append(ROOT_PATH)
 from textclf.nn import train_neural
 from textclf.nn.embeddings import make_embedding
 
-MODEL_FILE = './yelp-model-gru-1'
-LOG_FILE = './log-model-gru-1'
+MODEL_FILE = './models/useful/yelp-model-gru-1'
+LOG_FILE = './outputs/useful/log-model-gru-1'
 
 # Read back data
-train_reviews = np.load("../Yelp_funny_train_fulltext_glove_300_X.npy")
-train_labels = np.load("../Yelp_funny_train_fulltext_glove_300_y.npy")
-test_reviews = np.load("../Yelp_funny_test_fulltext_glove_300_X.npy")
-test_labels = np.load("../Yelp_funny_test_fulltext_glove_300_y.npy")
+# train_reviews = np.load("../../Yelp_funny_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_funny_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_funny_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_funny_test_fulltext_glove_300_y.npy")
+
+train_reviews = np.load("../../Yelp_useful_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_useful_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_useful_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_useful_test_fulltext_glove_300_y.npy")
 
 WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
 
@@ -33,7 +38,7 @@ model = Sequential()
 model.add(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
                          fixed=True, constraint=None))
 model.add(GRU(128, init='uniform', ))
-#model.add(Dropout(0.2))
+model.add(Dropout(0.2))
 model.add(Dense(1, init='uniform'))
 model.add(Activation('sigmoid'))
 
