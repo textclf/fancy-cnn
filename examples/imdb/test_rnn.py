@@ -14,8 +14,8 @@ sys.path.append(ROOT_PATH)
 from textclf.nn import train_neural
 from textclf.nn.embeddings import make_embedding
 
-MODEL_FILE = './imdb-model-gru-1'
-LOG_FILE = './log-model-gru'
+MODEL_FILE = './models/imdb-model-gru-1'
+LOG_FILE = './outputs/log-model-gru'
 
 # Read back data
 train_reviews = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_X.npy"))
@@ -33,7 +33,7 @@ model = Sequential()
 model.add(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
                          fixed=True, constraint=None))
 model.add(GRU(128, init='uniform', ))
-#model.add(Dropout(0.2))
+model.add(Dropout(0.2))
 model.add(Dense(1, init='uniform'))
 model.add(Activation('sigmoid'))
 

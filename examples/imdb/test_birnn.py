@@ -14,18 +14,18 @@ sys.path.append(ROOT_PATH)
 from textclf.nn import train_neural
 from textclf.nn.embeddings import make_embedding
 
-MODEL_FILE = './imdb-model-gru-1'
-LOG_FILE = './log-model-gru'
+MODEL_FILE = './models/imdb-model-bigru-1'
+LOG_FILE = './outputs/log-model-bigru-1'
 
 
 # Read back data
-train_reviews = np.load(path_join(ROOT_PREFIX, "IMDB_train_fulltext_glove_X.npy"))
-train_labels = np.load(path_join(ROOT_PREFIX, "IMDB_train_fulltext_glove_y.npy"))
+train_reviews = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_X.npy"))
+train_labels = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_y.npy"))
 
-test_reviews = np.load(path_join(ROOT_PREFIX, "IMDB_test_fulltext_glove_X.npy"))
-test_labels = np.load(path_join(ROOT_PREFIX, "IMDB_test_fulltext_glove_y.npy"))
+test_reviews = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_X.npy"))
+test_labels = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_y.npy"))
 
-WV_FILE_GLOBAL = path_join(ROOT_PREFIX, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 

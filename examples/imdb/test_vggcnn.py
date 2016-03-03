@@ -5,6 +5,7 @@ import sys
 
 from keras.layers.recurrent import GRU
 from keras.models import Sequential
+from keras.layers import Embedding
 from keras.layers.core import Dense, Activation, Dropout, Flatten, Permute
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
@@ -14,8 +15,8 @@ sys.path.append(ROOT_PATH)
 
 from textclf.nn import train_neural
 
-MODEL_FILE = './imdb-model-cnn-1'
-LOG_FILE = './log-model-cnn-1'
+MODEL_FILE = './models/imdb-model-vggcnn-1'
+LOG_FILE = './outputs/log-model-vggcnn-1'
 
 # Read back data
 train_reviews = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_X.npy"))
@@ -23,7 +24,7 @@ train_labels = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_y.npy"))
 test_reviews = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_X.npy"))
 test_labels = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_y.npy"))
 
-WV_FILE_GLOBAL = 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl'
+WV_FILE_GLOBAL = path_join(ROOT_PATH, './embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
 
 gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 

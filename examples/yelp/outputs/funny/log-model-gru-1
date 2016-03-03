@@ -1,0 +1,88 @@
+Model trained at 2016-02-18 00:11:28
+Accuracy obtained: 0.83315570713
+Error obtained: 0.16684429287
+================================================================================
+Model in json:
+================================================================================
+{"layers": [{"W_constraint": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": false, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "activity_regularizer": null, "input_length": null}, {"name": "GRU", "custom_name": "gru", "inner_activation": "hard_sigmoid", "go_backwards": false, "output_dim": 128, "trainable": true, "stateful": false, "cache_enabled": true, "init": "uniform", "inner_init": "orthogonal", "input_dim": 300, "return_sequences": false, "activation": "sigmoid", "input_length": null}, {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "dense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "uniform", "activation": "linear", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}, {"cache_enabled": true, "activation": "sigmoid", "trainable": true, "name": "Activation", "custom_name": "activation"}], "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "class_mode": "binary", "name": "Sequential", "loss": "binary_crossentropy"}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Initial input shape: (None, 120002)
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Embedding (embedding)         (None, None, 300)             36000600            
+GRU (gru)                     (None, 128)                   164736              
+Dense (dense)                 (None, 1)                     129                 
+Activation (activation)       (None, 1)                     0                   
+--------------------------------------------------------------------------------
+Total params: 36165465
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.488562, val_loss: 0.486064
+Epoch 2: loss: 0.424519, val_loss: 0.425247
+Epoch 3: loss: 0.408095, val_loss: 0.402976
+Epoch 4: loss: 0.401072, val_loss: 0.397901
+Epoch 5: loss: 0.396642, val_loss: 0.392916
+Epoch 6: loss: 0.387917, val_loss: 0.407818
+Epoch 7: loss: 0.384401, val_loss: 0.388158
+Epoch 8: loss: 0.377932, val_loss: 0.382533
+Epoch 9: loss: 0.372187, val_loss: 0.380272
+Epoch 10: loss: 0.367595, val_loss: 0.385942
+Epoch 11: loss: 0.362975, val_loss: 0.377799
+Epoch 12: loss: 0.358287, val_loss: 0.375347
+Epoch 13: loss: 0.353767, val_loss: 0.378295
+Epoch 14: loss: 0.350050, val_loss: 0.372126
+Epoch 15: loss: 0.344388, val_loss: 0.375538
+Epoch 16: loss: 0.340682, val_loss: 0.381930
+Epoch 17: loss: 0.334184, val_loss: 0.393624
+Epoch 18: loss: 0.330151, val_loss: 0.383952
+Epoch 19: loss: 0.325402, val_loss: 0.380298
+Epoch 20: loss: 0.321652, val_loss: 0.381932
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+
+import numpy as np
+from keras.layers.recurrent import GRU
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation, Dropout
+
+import sys
+sys.path.append("..")
+from nn import train_neural
+from cnn.layers.embeddings import *
+
+MODEL_FILE = './yelp-model-gru-1'
+LOG_FILE = './log-model-gru-1'
+
+# Read back data
+train_reviews = np.load("../Yelp_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../Yelp_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../Yelp_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../Yelp_funny_test_fulltext_glove_300_y.npy")
+
+WV_FILE_GLOBAL = '../data/wv/glove.42B.300d.120000-glovebox.pkl'
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Sequential()
+model.add(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
+                         fixed=True, constraint=None))
+model.add(GRU(128, init='uniform', ))
+#model.add(Dropout(0.2))
+model.add(Dense(1, init='uniform'))
+model.add(Activation('sigmoid'))
+
+model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)

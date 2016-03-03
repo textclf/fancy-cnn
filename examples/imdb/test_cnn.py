@@ -5,6 +5,7 @@ import sys
 import numpy as np
 from keras.layers.recurrent import GRU
 from keras.models import Sequential
+from keras.layers import Embedding
 from keras.layers.core import Dense, Activation, Dropout, Flatten, Permute
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
@@ -14,8 +15,8 @@ sys.path.append(ROOT_PATH)
 
 from textclf.nn import train_neural
 
-MODEL_FILE = './imdb-model-cnn-1'
-LOG_FILE = './log-model-cnn-1'
+MODEL_FILE = './models/imdb-model-cnn-1'
+LOG_FILE = './outputs/log-model-cnn-1'
 
 # Read back data
 train_reviews = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_X.npy"))
