@@ -132,8 +132,7 @@ if __name__ == '__main__':
     ##################################
     ### YELP COOL
     ##################################
-    log('Saving "cool" votedf -h'
-        's data')
+    log('Saving "cool" votes data')
     (train_reviews, train_labels, test_reviews, test_labels) = \
         yelp.get_data(YELP_COOL_TRAIN, YELP_COOL_DEV, YELP_COOL_TEST)
 
