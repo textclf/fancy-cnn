@@ -1,17 +1,16 @@
-'''
-prepare-yelp.py
+"""
+prepare_yelp_sentences.py
 
-description: prepare the yelp data for training in DNNs
-'''
+description: prepare the yelp data for training in convolutional recurrent architectures over sentences
+"""
+from nlpdatahandlers import YelpDataHandler
 
 import cPickle as pickle
 import logging
-from multiprocessing import Pool
 
 import numpy as np
 
-from wordvectors.glove import GloVeBox
-from util.misc import normalize_sos
+from textclf.wordvectors.glove import GloVeBox
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -19,109 +18,123 @@ logger = logging.getLogger(__name__)
 def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
-def parse_paragraph(txt):
-    '''
-    Takes a text and returns a list of lists of tokens, where each sublist is a sentence
-    '''
-    return [[t.text for t in s] for s in nlp(txt).sents]
+YELP_USEFUL_TRAIN = '../yelp-dataset/TrainSet_useful_185292'
+YELP_USEFUL_DEV = '../yelp-dataset/DevSet_useful_185292'
+YELP_USEFUL_TEST = '../yelp-dataset/TestSet_useful_185292'
 
-def parallel_run(f, parms):
-    '''
-    performs multi-core map of the function `f`
-    over the parameter space spanned by parms.
+YELP_FUNNY_TRAIN = '../yelp-dataset/TrainSet_funny_75064'
+YELP_FUNNY_DEV = '../yelp-dataset/DevSet_funny_75064'
+YELP_FUNNY_TEST = '../yelp-dataset/TestSet_funny_75064'
 
-    `f` MUST take only one argument.
-    '''
-    pool = Pool()
-    ret = pool.map(f, parms)
-    pool.close()
-    pool.join()
-    return ret
+YELP_COOL_TRAIN = '../yelp-dataset/TrainSet_cool_88698'
+YELP_COOL_DEV = '../yelp-dataset/DevSet_cool_88698'
+YELP_COOL_TEST = '../yelp-dataset/TestSet_cool_88698'
 
-TRAIN_FILE = "datasets/yelp/data_funny_binary_balanced/TrainSet_147444"
-DEV_FILE = "datasets/yelp/data_funny_binary_balanced/DevSet_147444"
-TEST_FILE = "datasets/yelp/data_funny_binary_balanced/TestSet_147444"
-
-NUM_TRAIN_REVIEWS = None # None if want to use all
-NUM_TEST_REVIEWS = None
-
-# -- parameters to tune and set
-WORDS_PER_SENTENCE = 20
-SENTENCES_PER_PARAGRAPH = 20
-
-WV_FILE = './data/wv/glove.42B.300d.120000.txt'
-
-log('Importing spaCy...')
-from spacy.en import English
-
-log('Initializing spaCy...')
-nlp = English()
+GLOBAL_WV_FILE = './embeddings/wv/glove.42B.300d.120000.txt'
+YELP_WV_FILE = './embeddings/wv/Yelp-GloVe-300dim.txt'
+WORDS_PER_SENTENCE = 50
+SENTENCES_PER_PARAGRAPH = 50
+PREPEND = False
 
 if __name__ == '__main__':
 
-    log('Building word vectors from {}'.format(WV_FILE))
-    gb = GloVeBox(WV_FILE)
-    gb.build(zero_token=True).index()
+    log('Building word vectors from {}'.format(YELP_WV_FILE))
+    yelp_gb = GloVeBox(YELP_WV_FILE)
+    yelp_gb.build(zero_token=True, normalize_variance=False, normalize_norm=True)
+
+    log('Building global word vectors from {}'.format(GLOBAL_WV_FILE))
+    global_gb = GloVeBox(GLOBAL_WV_FILE)
+    global_gb.build(zero_token=True, normalize_variance=False, normalize_norm=True)
 
     log('writing GloVeBox pickle...')
-    pickle.dump(gb, open(WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
+    pickle.dump(yelp_gb, open(YELP_WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
+    pickle.dump(global_gb, open(GLOBAL_WV_FILE.replace('.txt', '-glovebox.pkl'), 'wb'), pickle.HIGHEST_PROTOCOL)
 
-    log('Loading train and test pickles...')
+    yelp = YelpDataHandler()
 
-    with open(TRAIN_FILE) as file:
-        [train_reviews, train_labels] = pickle.load(file)
-    with open(DEV_FILE) as file:
-        [dev_reviews, dev_labels] = pickle.load(file)
-    with open(TEST_FILE) as file:
-        [test_reviews, test_labels] = pickle.load(file)
+    ##################################
+    ### YELP USEFUL
+    ##################################
+    log('Creating "useful" reviews sentence-datasets')
+    (train_reviews, train_labels, test_reviews, test_labels) = \
+        yelp.get_data(YELP_USEFUL_TRAIN, YELP_USEFUL_DEV, YELP_USEFUL_TEST)
 
-    # Merge train and dev
-    train_reviews.extend(dev_reviews)
-    train_reviews = train_reviews[:NUM_TRAIN_REVIEWS]
-    train_labels.extend(dev_labels)
-    train_labels = train_labels[:NUM_TRAIN_REVIEWS]
+    log('Converting to sentences: global word vectors')
+    train_global_wvs_reviews = yelp.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
+                                                    WORDS_PER_SENTENCE, global_gb)
+    test_global_wvs_reviews = yelp.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
+                                                   WORDS_PER_SENTENCE, global_gb)
 
-    test_reviews = test_reviews[:NUM_TEST_REVIEWS]
-    test_labels = test_labels[:NUM_TEST_REVIEWS]
-
-    log('Splitting training data into paragraphs')
-    train_text_sentences = parallel_run(parse_paragraph, train_reviews)
-    test_text_sentences = parallel_run(parse_paragraph, test_reviews)
-
-    log('normalizing training inputs...')
-    train_repr = normalize_sos(
-                        [
-                                normalize_sos(review, WORDS_PER_SENTENCE)
-                                for review in gb.get_indices(train_text_sentences)
-                        ],
-            SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
-        )
-
-    train_text = np.array(train_repr)
-
-    log('normalizing testing inputs...')
-    test_repr = normalize_sos(
-                        [
-                            normalize_sos(review, WORDS_PER_SENTENCE)
-                            for review in gb.get_indices(test_text_sentences)
-                        ],
-        SENTENCES_PER_PARAGRAPH, [0] * WORDS_PER_SENTENCE
-    )
-
-    test_text = np.array(test_repr)
-
-    log('Saving...')
+    log('Converting to sentences: yelp word vectors')
+    train_yelp_wvs_reviews = yelp.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
+                                                    WORDS_PER_SENTENCE, yelp_gb)
+    test_yelp_wvs_reviews = yelp.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
+                                                   WORDS_PER_SENTENCE, yelp_gb)
 
     # -- training data save
-    np.save('Yelp_train_glove_X.npy', train_text)
-    np.save('Yelp_train_glove_y.npy', train_labels)
+    np.save('Yelp_useful_sentences_train_yelp_glove_X.npy', train_yelp_wvs_reviews)
+    np.save('Yelp_useful_sentences_train_global_glove_X.npy', train_global_wvs_reviews)
+    np.save('Yelp_useful_sentences_train_glove_y.npy', train_labels)
 
     # -- testing data save
-    np.save('Yelp_test_glove_X.npy', test_text)
-    np.save('Yelp_test_glove_y.npy', test_labels)
+    np.save('Yelp_useful_sentences_test_yelp_glove_X.npy', test_yelp_wvs_reviews)
+    np.save('Yelp_useful_sentences_test_global_glove_X.npy', test_global_wvs_reviews)
+    np.save('Yelp_useful_sentences_test_glove_y.npy', test_labels)
 
+    ##################################
+    ### YELP FUNNY
+    ##################################
+    log('Creating "funny" reviews sentence-datasets')
+    (train_reviews, train_labels, test_reviews, test_labels) = \
+        yelp.get_data(YELP_FUNNY_TRAIN, YELP_FUNNY_DEV, YELP_FUNNY_TEST)
 
+    log('Converting to sentences: global word vectors')
+    train_global_wvs_reviews = yelp.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
+                                                    WORDS_PER_SENTENCE, global_gb)
+    test_global_wvs_reviews = yelp.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
+                                                   WORDS_PER_SENTENCE, global_gb)
 
+    log('Converting to sentences: yelp word vectors')
+    train_yelp_wvs_reviews = yelp.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
+                                                    WORDS_PER_SENTENCE, yelp_gb)
+    test_yelp_wvs_reviews = yelp.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
+                                                   WORDS_PER_SENTENCE, yelp_gb)
 
+    # -- training data save
+    np.save('Yelp_funny_sentences_train_yelp_glove_X.npy', train_yelp_wvs_reviews)
+    np.save('Yelp_funny_sentences_train_global_glove_X.npy', train_global_wvs_reviews)
+    np.save('Yelp_funny_sentences_train_glove_y.npy', train_labels)
 
+    # -- testing data save
+    np.save('Yelp_funny_sentences_test_yelp_glove_X.npy', test_yelp_wvs_reviews)
+    np.save('Yelp_funny_sentences_test_global_glove_X.npy', test_global_wvs_reviews)
+    np.save('Yelp_funny_sentences_test_glove_y.npy', test_labels)
 
+    ##################################
+    ### YELP COOL
+    ##################################
+    log('Creating "cool" reviews sentence-datasets')
+    (train_reviews, train_labels, test_reviews, test_labels) = \
+        yelp.get_data(YELP_COOL_TRAIN, YELP_COOL_DEV, YELP_COOL_TEST)
+
+    log('Converting to sentences: global word vectors')
+    train_global_wvs_reviews = yelp.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
+                                                    WORDS_PER_SENTENCE, global_gb)
+    test_global_wvs_reviews = yelp.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
+                                                   WORDS_PER_SENTENCE, global_gb)
+
+    log('Converting to sentences: yelp word vectors')
+    train_yelp_wvs_reviews = yelp.to_sentence_level_idx(train_reviews, SENTENCES_PER_PARAGRAPH,
+                                                    WORDS_PER_SENTENCE, yelp_gb)
+    test_yelp_wvs_reviews = yelp.to_sentence_level_idx(test_reviews, SENTENCES_PER_PARAGRAPH,
+                                                   WORDS_PER_SENTENCE, yelp_gb)
+
+    # -- training data save
+    np.save('Yelp_cool_sentences_train_yelp_glove_X.npy', train_yelp_wvs_reviews)
+    np.save('Yelp_cool_sentences_train_global_glove_X.npy', train_global_wvs_reviews)
+    np.save('Yelp_cool_sentences_train_glove_y.npy', train_labels)
+
+    # -- testing data save
+    np.save('Yelp_cool_sentences_test_yelp_glove_X.npy', test_yelp_wvs_reviews)
+    np.save('Yelp_cool_sentences_test_global_glove_X.npy', test_global_wvs_reviews)
+    np.save('Yelp_cool_sentences_test_glove_y.npy', test_labels)
