@@ -14,8 +14,8 @@ sys.path.append(ROOT_PATH)
 from textclf.nn import train_neural
 from textclf.nn.embeddings import make_embedding
 
-MODEL_FILE = './models/imdb-model-multigru-1'
-LOG_FILE = './outputs/log-model-multigru-1'
+MODEL_FILE = './models/imdb-model-multigru-3'
+LOG_FILE = './outputs/log-model-multigru-3'
 
 # Read back data
 train_reviews = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_X.npy"))
@@ -30,14 +30,17 @@ gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
 wv_size = gb_global.W.shape[1]
 
 model = Sequential()
-model.add(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
-                         fixed=True, constraint=None))
-model.add(GRU(128, init='uniform', return_sequences=True))
-model.add(GRU(64, init='uniform', return_sequences=True))
-model.add(GRU(16, init='uniform'))
+model.add(Embedding(gb_global.W.shape[0], wv_size, weights=[gb_global.W],
+                input_length=train_reviews.shape[1]))
+model.add(GRU(128, return_sequences=True))
+model.add(Dropout(0.5))
+model.add(GRU(64, return_sequences=True))
+model.add(Dropout(0.5))
+model.add(GRU(16, return_sequences=True))
 model.add(Dropout(0.2))
-model.add(Dense(1, init='uniform'))
-model.add(Activation('sigmoid'))
+model.add(Flatten())
+model.add(Dense(1))
+model.add(Activation('tanh'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
 
