@@ -1,0 +1,100 @@
+Model trained at 2016-03-07 18:16:17
+Accuracy obtained: 0.83524
+Error obtained: 0.16476
+================================================================================
+Model in json:
+================================================================================
+{"layers": [{"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": true, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": 300}, {"U_regularizer": null, "name": "GRU", "custom_name": "gru", "inner_activation": "hard_sigmoid", "go_backwards": false, "output_dim": 128, "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": true, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.5}, {"U_regularizer": null, "name": "LSTM", "custom_name": "lstm", "inner_activation": "hard_sigmoid", "go_backwards": false, "activation": "tanh", "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 128, "return_sequences": true, "b_regularizer": null, "W_regularizer": null, "output_dim": 64, "forget_bias_init": "one", "input_length": null}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.5}, {"U_regularizer": null, "name": "GRU", "custom_name": "gru", "inner_activation": "hard_sigmoid", "go_backwards": false, "output_dim": 32, "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 64, "return_sequences": true, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.2}, {"U_regularizer": null, "name": "LSTM", "custom_name": "lstm", "inner_activation": "hard_sigmoid", "go_backwards": false, "activation": "tanh", "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 32, "return_sequences": true, "b_regularizer": null, "W_regularizer": null, "output_dim": 16, "forget_bias_init": "one", "input_length": null}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.2}, {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten"}, {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "dense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "glorot_uniform", "activation": "linear", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}, {"cache_enabled": true, "activation": "tanh", "trainable": true, "name": "Activation", "custom_name": "activation"}], "loss": "binary_crossentropy", "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Sequential", "class_mode": "binary", "sample_weight_mode": null}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Initial input shape: (None, 120002)
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Embedding (embedding)         (None, 300, 300)              36000600            
+GRU (gru)                     (None, 300, 128)              164736              
+Dropout (dropout)             (None, 300, 128)              0                   
+LSTM (lstm)                   (None, 300, 64)               49408               
+Dropout (dropout)             (None, 300, 64)               0                   
+GRU (gru)                     (None, 300, 32)               9312                
+Dropout (dropout)             (None, 300, 32)               0                   
+LSTM (lstm)                   (None, 300, 16)               3136                
+Dropout (dropout)             (None, 300, 16)               0                   
+Flatten (flatten)             (None, 4800)                  0                   
+Dense (dense)                 (None, 1)                     4801                
+Activation (activation)       (None, 1)                     0                   
+--------------------------------------------------------------------------------
+Total params: 36231993
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.832901, val_loss: 0.647071
+Epoch 2: loss: 0.728845, val_loss: 0.487165
+Epoch 3: loss: 0.599451, val_loss: 0.571895
+Epoch 4: loss: 0.459379, val_loss: 0.370024
+Epoch 5: loss: 0.220838, val_loss: 0.539010
+Epoch 6: loss: 0.158622, val_loss: 1.198781
+Epoch 7: loss: 0.109933, val_loss: 1.032190
+Epoch 8: loss: 0.126575, val_loss: 0.519124
+Epoch 9: loss: 0.097331, val_loss: 0.950837
+Epoch 10: loss: 0.068137, val_loss: 1.373874
+Epoch 11: loss: 0.057431, val_loss: 1.638834
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+import numpy as np
+import os
+from os.path import join as path_join
+import sys
+
+from keras.layers.recurrent import GRU, LSTM
+from keras.models import Sequential
+from keras.layers import Embedding
+from keras.layers.core import Dense, Activation, Dropout, Flatten
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
+
+MODEL_FILE = './models/imdb-model-multigru-4'
+LOG_FILE = './outputs/log-model-multigru-4'
+
+# Read back data
+train_reviews = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_X.npy"))
+train_labels = np.load(path_join(ROOT_PATH, "IMDB_train_fulltext_glove_y.npy"))
+test_reviews = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_X.npy"))
+test_labels = np.load(path_join(ROOT_PATH, "IMDB_test_fulltext_glove_y.npy"))
+
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Sequential()
+model.add(Embedding(gb_global.W.shape[0], wv_size, weights=[gb_global.W],
+                input_length=train_reviews.shape[1]))
+model.add(GRU(128, return_sequences=True))
+model.add(Dropout(0.5))
+model.add(LSTM(64, return_sequences=True))
+model.add(Dropout(0.5))
+model.add(GRU(32, return_sequences=True))
+model.add(Dropout(0.2))
+model.add(LSTM(16, return_sequences=True))
+model.add(Dropout(0.2))
+model.add(Flatten())
+model.add(Dense(1))
+model.add(Activation('tanh'))
+
+model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+
