@@ -18,17 +18,17 @@ logger = logging.getLogger(__name__)
 def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
-YELP_USEFUL_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_useful_185292'
-YELP_USEFUL_DEV = '../yelp-dataset/3votes_threshold/DevSet_useful_185292'
-YELP_USEFUL_TEST = '../yelp-dataset/3votes_threshold/TestSet_useful_185292'
+YELP_USEFUL_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_useful_491782'
+YELP_USEFUL_DEV = '../yelp-dataset/3votes_threshold/DevSet_useful_491782'
+YELP_USEFUL_TEST = '../yelp-dataset/3votes_threshold/TestSet_useful_491782'
 
-YELP_FUNNY_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_funny_75064'
-YELP_FUNNY_DEV = '../yelp-dataset/3votes_threshold/DevSet_funny_75064'
-YELP_FUNNY_TEST = '../yelp-dataset/3votes_threshold/TestSet_funny_75064'
+YELP_FUNNY_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_funny_183246'
+YELP_FUNNY_DEV = '../yelp-dataset/3votes_threshold/DevSet_funny_183246'
+YELP_FUNNY_TEST = '../yelp-dataset/3votes_threshold/TestSet_funny_183246'
 
-YELP_COOL_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_cool_88698'
-YELP_COOL_DEV = '../yelp-dataset/3votes_threshold/DevSet_cool_88698'
-YELP_COOL_TEST = '../yelp-dataset/3votes_threshold/TestSet_cool_88698'
+YELP_COOL_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_cool_218444'
+YELP_COOL_DEV = '../yelp-dataset/3votes_threshold/DevSet_cool_218444'
+YELP_COOL_TEST = '../yelp-dataset/3votes_threshold/TestSet_cool_218444'
 
 GLOBAL_WV_FILE = './embeddings/wv/glove.42B.300d.120000.txt'
 YELP_WV_FILE = './embeddings/wv/Yelp-GloVe-300dim.txt'
