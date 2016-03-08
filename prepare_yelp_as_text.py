@@ -18,17 +18,17 @@ logger = logging.getLogger(__name__)
 def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
-YELP_USEFUL_TRAIN = '../yelp-dataset/TrainSet_useful_185292'
-YELP_USEFUL_DEV = '../yelp-dataset/DevSet_useful_185292'
-YELP_USEFUL_TEST = '../yelp-dataset/TestSet_useful_185292'
+YELP_USEFUL_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_useful_185292'
+YELP_USEFUL_DEV = '../yelp-dataset/3votes_threshold/DevSet_useful_185292'
+YELP_USEFUL_TEST = '../yelp-dataset/3votes_threshold/TestSet_useful_185292'
 
-YELP_FUNNY_TRAIN = '../yelp-dataset/TrainSet_funny_75064'
-YELP_FUNNY_DEV = '../yelp-dataset/DevSet_funny_75064'
-YELP_FUNNY_TEST = '../yelp-dataset/TestSet_funny_75064'
+YELP_FUNNY_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_funny_75064'
+YELP_FUNNY_DEV = '../yelp-dataset/3votes_threshold/DevSet_funny_75064'
+YELP_FUNNY_TEST = '../yelp-dataset/3votes_threshold/TestSet_funny_75064'
 
-YELP_COOL_TRAIN = '../yelp-dataset/TrainSet_cool_88698'
-YELP_COOL_DEV = '../yelp-dataset/DevSet_cool_88698'
-YELP_COOL_TEST = '../yelp-dataset/TestSet_cool_88698'
+YELP_COOL_TRAIN = '../yelp-dataset/3votes_threshold/TrainSet_cool_88698'
+YELP_COOL_DEV = '../yelp-dataset/3votes_threshold/DevSet_cool_88698'
+YELP_COOL_TEST = '../yelp-dataset/3votes_threshold/TestSet_cool_88698'
 
 GLOBAL_WV_FILE = './embeddings/wv/glove.42B.300d.120000.txt'
 YELP_WV_FILE = './embeddings/wv/Yelp-GloVe-300dim.txt'
@@ -62,34 +62,34 @@ if __name__ == '__main__':
 
     reviews_wvs_train = yelp.to_word_level_idx(train_reviews, global_gb, WORDS_PER_TEXT)
     # -- training data save
-    np.save('Yelp_useful_train_fulltext_glove_300_X.npy', reviews_wvs_train)
-    np.save('Yelp_useful_train_fulltext_glove_300_y.npy', train_labels)
+    np.save('Yelp_3votes_useful_train_fulltext_glove_300_X.npy', reviews_wvs_train)
+    np.save('Yelp_3votes_useful_train_fulltext_glove_300_y.npy', train_labels)
 
-    reviews_wvs_train = yelp.to_word_level_idx(train_reviews, yelp_gb, WORDS_PER_TEXT)
-    # -- training data save
-    np.save('Yelp_useful_train_fulltext_Yelp_glove_300_X.npy', reviews_wvs_train)
-    np.save('Yelp_useful_train_fulltext_Yelp_glove_300_y.npy', train_labels)
+    # reviews_wvs_train = yelp.to_word_level_idx(train_reviews, yelp_gb, WORDS_PER_TEXT)
+    # # -- training data save
+    # np.save('Yelp_useful_train_fulltext_Yelp_glove_300_X.npy', reviews_wvs_train)
+    # np.save('Yelp_useful_train_fulltext_Yelp_glove_300_y.npy', train_labels)
 
     del reviews_wvs_train
 
     reviews_wvs_test = yelp.to_word_level_idx(test_reviews, global_gb, WORDS_PER_TEXT)
     # -- testing data save
-    np.save('Yelp_useful_test_fulltext_glove_300_X.npy', reviews_wvs_test)
-    np.save('Yelp_useful_test_fulltext_glove_300_y.npy', test_labels)
+    np.save('Yelp_3votes_useful_test_fulltext_glove_300_X.npy', reviews_wvs_test)
+    np.save('Yelp_3votes_useful_test_fulltext_glove_300_y.npy', test_labels)
 
-    reviews_wvs_test = yelp.to_word_level_idx(test_reviews, yelp_gb, WORDS_PER_TEXT)
-    # -- testing data save
-    np.save('Yelp_useful_test_fulltext_Yelp_glove_300_X.npy', reviews_wvs_test)
-    np.save('Yelp_useful_test_fulltext_Yelp_glove_300_y.npy', test_labels)
+    # reviews_wvs_test = yelp.to_word_level_idx(test_reviews, yelp_gb, WORDS_PER_TEXT)
+    # # -- testing data save
+    # np.save('Yelp_useful_test_fulltext_Yelp_glove_300_X.npy', reviews_wvs_test)
+    # np.save('Yelp_useful_test_fulltext_Yelp_glove_300_y.npy', test_labels)
 
     del reviews_wvs_test
 
-    log('Hashing BOW features, might be used by some NN models')
-    hv = HashingVectorizer(n_features=BOW_HASH_DIMENSION) # Int: maybe try without normalization
-    train_bow_hash = hv.transform(train_reviews)
-    test_bow_hash = hv.transform(test_reviews)
-    np.save('Yelp_useful_train_hashbow.npy', train_bow_hash.todense())
-    np.save('Yelp_useful_test_hashbow.npy', test_bow_hash.todense())
+    # log('Hashing BOW features, might be used by some NN models')
+    # hv = HashingVectorizer(n_features=BOW_HASH_DIMENSION) # Int: maybe try without normalization
+    # train_bow_hash = hv.transform(train_reviews)
+    # test_bow_hash = hv.transform(test_reviews)
+    # np.save('Yelp_useful_train_hashbow.npy', train_bow_hash.todense())
+    # np.save('Yelp_useful_test_hashbow.npy', test_bow_hash.todense())
 
     ##################################
     ### YELP FUNNY
@@ -100,34 +100,34 @@ if __name__ == '__main__':
 
     reviews_wvs_train = yelp.to_word_level_idx(train_reviews, global_gb, WORDS_PER_TEXT)
     # -- training data save
-    np.save('Yelp_funny_train_fulltext_glove_300_X.npy', reviews_wvs_train)
-    np.save('Yelp_funny_train_fulltext_glove_300_y.npy', train_labels)
+    np.save('Yelp_3votes_funny_train_fulltext_glove_300_X.npy', reviews_wvs_train)
+    np.save('Yelp_3votes_funny_train_fulltext_glove_300_y.npy', train_labels)
 
-    reviews_wvs_train = yelp.to_word_level_idx(train_reviews, yelp_gb, WORDS_PER_TEXT)
-    # -- training data save
-    np.save('Yelp_funny_train_fulltext_Yelp_glove_300_X.npy', reviews_wvs_train)
-    np.save('Yelp_funny_train_fulltext_Yelp_glove_300_y.npy', train_labels)
+    # reviews_wvs_train = yelp.to_word_level_idx(train_reviews, yelp_gb, WORDS_PER_TEXT)
+    # # -- training data save
+    # np.save('Yelp_funny_train_fulltext_Yelp_glove_300_X.npy', reviews_wvs_train)
+    # np.save('Yelp_funny_train_fulltext_Yelp_glove_300_y.npy', train_labels)
 
     del reviews_wvs_train
 
     reviews_wvs_test = yelp.to_word_level_idx(test_reviews, global_gb, WORDS_PER_TEXT)
     # -- testing data save
-    np.save('Yelp_funny_test_fulltext_glove_300_X.npy', reviews_wvs_test)
-    np.save('Yelp_funny_test_fulltext_glove_300_y.npy', test_labels)
+    np.save('Yelp_3votes_funny_test_fulltext_glove_300_X.npy', reviews_wvs_test)
+    np.save('Yelp_3votes_funny_test_fulltext_glove_300_y.npy', test_labels)
 
-    reviews_wvs_test = yelp.to_word_level_idx(test_reviews, yelp_gb, WORDS_PER_TEXT)
-    # -- testing data save
-    np.save('Yelp_funny_test_fulltext_Yelp_glove_300_X.npy', reviews_wvs_test)
-    np.save('Yelp_funny_test_fulltext_Yelp_glove_300_y.npy', test_labels)
+    # reviews_wvs_test = yelp.to_word_level_idx(test_reviews, yelp_gb, WORDS_PER_TEXT)
+    # # -- testing data save
+    # np.save('Yelp_funny_test_fulltext_Yelp_glove_300_X.npy', reviews_wvs_test)
+    # np.save('Yelp_funny_test_fulltext_Yelp_glove_300_y.npy', test_labels)
 
     del reviews_wvs_test
 
-    log('Hashing BOW features, might be used by some NN models')
-    hv = HashingVectorizer(n_features=BOW_HASH_DIMENSION) # Int: maybe try without normalization
-    train_bow_hash = hv.transform(train_reviews)
-    test_bow_hash = hv.transform(test_reviews)
-    np.save('Yelp_funny_train_hashbow.npy', train_bow_hash.todense())
-    np.save('Yelp_funny_test_hashbow.npy', test_bow_hash.todense())
+    # log('Hashing BOW features, might be used by some NN models')
+    # hv = HashingVectorizer(n_features=BOW_HASH_DIMENSION) # Int: maybe try without normalization
+    # train_bow_hash = hv.transform(train_reviews)
+    # test_bow_hash = hv.transform(test_reviews)
+    # np.save('Yelp_funny_train_hashbow.npy', train_bow_hash.todense())
+    # np.save('Yelp_funny_test_hashbow.npy', test_bow_hash.todense())
 
     ##################################
     ### YELP COOL
@@ -138,32 +138,32 @@ if __name__ == '__main__':
 
     reviews_wvs_train = yelp.to_word_level_idx(train_reviews, global_gb, WORDS_PER_TEXT)
     # -- training data save
-    np.save('Yelp_cool_train_fulltext_glove_300_X.npy', reviews_wvs_train)
-    np.save('Yelp_cool_train_fulltext_glove_300_y.npy', train_labels)
+    np.save('Yelp_3votes_cool_train_fulltext_glove_300_X.npy', reviews_wvs_train)
+    np.save('Yelp_3votes_cool_train_fulltext_glove_300_y.npy', train_labels)
 
 
-    reviews_wvs_train = yelp.to_word_level_idx(train_reviews, yelp_gb, WORDS_PER_TEXT)
-    # -- training data save
-    np.save('Yelp_cool_train_fulltext_Yelp_glove_300_X.npy', reviews_wvs_train)
-    np.save('Yelp_cool_train_fulltext_Yelp_glove_300_y.npy', train_labels)
+    # reviews_wvs_train = yelp.to_word_level_idx(train_reviews, yelp_gb, WORDS_PER_TEXT)
+    # # -- training data save
+    # np.save('Yelp_cool_train_fulltext_Yelp_glove_300_X.npy', reviews_wvs_train)
+    # np.save('Yelp_cool_train_fulltext_Yelp_glove_300_y.npy', train_labels)
 
-    del reviews_wvs_train
+    # del reviews_wvs_train
 
     reviews_wvs_test = yelp.to_word_level_idx(test_reviews, global_gb, WORDS_PER_TEXT)
     # -- testing data save
-    np.save('Yelp_cool_test_fulltext_glove_300_X.npy', reviews_wvs_test)
-    np.save('Yelp_cool_test_fulltext_glove_300_y.npy', test_labels)
+    np.save('Yelp_3votes_cool_test_fulltext_glove_300_X.npy', reviews_wvs_test)
+    np.save('Yelp_3votes_cool_test_fulltext_glove_300_y.npy', test_labels)
 
-    reviews_wvs_test = yelp.to_word_level_idx(test_reviews, yelp_gb, WORDS_PER_TEXT)
-    # -- testing data save
-    np.save('Yelp_cool_test_fulltext_Yelp_glove_300_X.npy', reviews_wvs_test)
-    np.save('Yelp_cool_test_fulltext_Yelp_glove_300_y.npy', test_labels)
+    # reviews_wvs_test = yelp.to_word_level_idx(test_reviews, yelp_gb, WORDS_PER_TEXT)
+    # # -- testing data save
+    # np.save('Yelp_cool_test_fulltext_Yelp_glove_300_X.npy', reviews_wvs_test)
+    # np.save('Yelp_cool_test_fulltext_Yelp_glove_300_y.npy', test_labels)
+    #
+    # del reviews_wvs_test
 
-    del reviews_wvs_test
-
-    log('Hashing BOW features, might be used by some NN models')
-    hv = HashingVectorizer(n_features=BOW_HASH_DIMENSION) # Int: maybe try without normalization
-    train_bow_hash = hv.transform(train_reviews)
-    test_bow_hash = hv.transform(test_reviews)
-    np.save('Yelp_cool_train_hashbow.npy', train_bow_hash.todense())
-    np.save('Yelp_cool_test_hashbow.npy', test_bow_hash.todense())
+    # log('Hashing BOW features, might be used by some NN models')
+    # hv = HashingVectorizer(n_features=BOW_HASH_DIMENSION) # Int: maybe try without normalization
+    # train_bow_hash = hv.transform(train_reviews)
+    # test_bow_hash = hv.transform(test_reviews)
+    # np.save('Yelp_cool_train_hashbow.npy', train_bow_hash.todense())
+    # np.save('Yelp_cool_test_hashbow.npy', test_bow_hash.todense())
