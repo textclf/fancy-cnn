@@ -1,0 +1,237 @@
+Model trained at 2016-03-07 08:31:11
+Accuracy obtained: 0.82590855803
+Error obtained: 0.17409144197
+================================================================================
+Model in json:
+================================================================================
+{"layers": [{"layers": [{"layers": [{"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": true, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": 2500}], "name": "Sequential"}, {"layers": [{"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": true, "input_shape": [32386], "cache_enabled": true, "init": "uniform", "input_dim": 32386, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": 2500}], "name": "Sequential"}], "name": "Merge", "custom_name": "merge", "concat_axis": -1, "trainable": true, "dot_axes": -1, "cache_enabled": true, "mode": "concat"}, {"cache_enabled": true, "trainable": true, "name": "Reshape", "custom_name": "reshape", "dims": [50, 50, 2, 300]}, {"cache_enabled": true, "trainable": true, "name": "Permute", "custom_name": "permute", "dims": [1, 3, 2, 4]}, {"name": "Graph", "output_config": [{"inputs": [], "name": "gru_dropout", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "input": "gru_dropout"}], "input_config": [{"dtype": "float", "name": "embeddings", "input_shape": [50, 2, 50, 300]}], "node_config": [{"inputs": [], "name": "conv2gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "embeddings"}, {"inputs": [], "name": "maxpool2gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "conv2gram"}, {"inputs": [], "name": "dropout2gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "maxpool2gram"}, {"inputs": [], "name": "flatten2gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout2gram"}, {"inputs": [], "name": "highway2gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "flatten2gram"}, {"inputs": [], "name": "conv3gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "embeddings"}, {"inputs": [], "name": "maxpool3gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "conv3gram"}, {"inputs": [], "name": "dropout3gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "maxpool3gram"}, {"inputs": [], "name": "flatten3gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout3gram"}, {"inputs": [], "name": "highway3gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "flatten3gram"}, {"inputs": [], "name": "conv4gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "embeddings"}, {"inputs": [], "name": "maxpool4gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "conv4gram"}, {"inputs": [], "name": "dropout4gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "maxpool4gram"}, {"inputs": [], "name": "flatten4gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout4gram"}, {"inputs": [], "name": "highway4gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "flatten4gram"}, {"inputs": [], "name": "conv5gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "embeddings"}, {"inputs": [], "name": "maxpool5gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "conv5gram"}, {"inputs": [], "name": "dropout5gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "maxpool5gram"}, {"inputs": [], "name": "flatten5gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout5gram"}, {"inputs": [], "name": "highway5gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "flatten5gram"}, {"inputs": [], "name": "conv7gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "embeddings"}, {"inputs": [], "name": "maxpool7gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "conv7gram"}, {"inputs": [], "name": "dropout7gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "maxpool7gram"}, {"inputs": [], "name": "flatten7gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout7gram"}, {"inputs": [], "name": "highway7gram", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "flatten7gram"}, {"inputs": ["highway2gram", "highway3gram", "highway4gram", "highway5gram", "highway7gram"], "name": "dropout", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": null}, {"inputs": [], "name": "forwards", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout"}, {"inputs": [], "name": "backwards", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "dropout"}, {"inputs": ["forwards", "backwards"], "name": "gru_dropout", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": true, "input": null}], "output_order": ["gru_dropout"], "input_order": ["embeddings"], "nodes": {"forwards": {"U_regularizer": null, "name": "GRU", "custom_name": "forwards", "inner_activation": "hard_sigmoid", "go_backwards": false, "output_dim": 100, "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 480, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, "flatten2gram": {"layer": {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten", "input_shape": [96, 1, 1]}, "name": "TimeDistributed", "custom_name": "flatten2gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "conv5gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Convolution2D", "custom_name": "convolution2d", "subsample": [1, 1], "nb_col": 300, "activation": "relu", "trainable": true, "input_shape": [2, 50, 300], "dim_ordering": "th", "cache_enabled": true, "init": "glorot_uniform", "nb_filter": 96, "b_regularizer": null, "W_regularizer": {"l2": 0.0001, "name": "WeightRegularizer", "l1": 0.0}, "nb_row": 5, "activity_regularizer": null, "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "conv5gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "flatten7gram": {"layer": {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten", "input_shape": [96, 1, 1]}, "name": "TimeDistributed", "custom_name": "flatten7gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "gru_dropout": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "gru_dropout", "p": 0.7}, "maxpool2gram": {"layer": {"name": "MaxPooling2D", "custom_name": "maxpooling2d", "strides": [49, 1], "trainable": true, "dim_ordering": "th", "input_shape": [96, 49, 1], "cache_enabled": true, "pool_size": [49, 1], "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "maxpool2gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "conv7gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Convolution2D", "custom_name": "convolution2d", "subsample": [1, 1], "nb_col": 300, "activation": "relu", "trainable": true, "input_shape": [2, 50, 300], "dim_ordering": "th", "cache_enabled": true, "init": "glorot_uniform", "nb_filter": 96, "b_regularizer": null, "W_regularizer": {"l2": 0.0001, "name": "WeightRegularizer", "l1": 0.0}, "nb_row": 7, "activity_regularizer": null, "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "conv7gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "highway2gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "input_shape": [96], "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, "name": "TimeDistributed", "custom_name": "highway2gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "conv2gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Convolution2D", "custom_name": "convolution2d", "subsample": [1, 1], "nb_col": 300, "activation": "relu", "trainable": true, "input_shape": [2, 50, 300], "dim_ordering": "th", "cache_enabled": true, "init": "glorot_uniform", "nb_filter": 96, "b_regularizer": null, "W_regularizer": {"l2": 0.0001, "name": "WeightRegularizer", "l1": 0.0}, "nb_row": 2, "activity_regularizer": null, "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "conv2gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "highway5gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "input_shape": [96], "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, "name": "TimeDistributed", "custom_name": "highway5gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "dropout3gram": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout3gram", "p": 0.15}, "flatten5gram": {"layer": {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten", "input_shape": [96, 1, 1]}, "name": "TimeDistributed", "custom_name": "flatten5gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "dropout": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.1}, "highway7gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "input_shape": [96], "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, "name": "TimeDistributed", "custom_name": "highway7gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "dropout5gram": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout5gram", "p": 0.15}, "maxpool7gram": {"layer": {"name": "MaxPooling2D", "custom_name": "maxpooling2d", "strides": [44, 1], "trainable": true, "dim_ordering": "th", "input_shape": [96, 44, 1], "cache_enabled": true, "pool_size": [44, 1], "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "maxpool7gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "dropout2gram": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout2gram", "p": 0.15}, "maxpool4gram": {"layer": {"name": "MaxPooling2D", "custom_name": "maxpooling2d", "strides": [47, 1], "trainable": true, "dim_ordering": "th", "input_shape": [96, 47, 1], "cache_enabled": true, "pool_size": [47, 1], "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "maxpool4gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "maxpool3gram": {"layer": {"name": "MaxPooling2D", "custom_name": "maxpooling2d", "strides": [48, 1], "trainable": true, "dim_ordering": "th", "input_shape": [96, 48, 1], "cache_enabled": true, "pool_size": [48, 1], "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "maxpool3gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "flatten4gram": {"layer": {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten", "input_shape": [96, 1, 1]}, "name": "TimeDistributed", "custom_name": "flatten4gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "flatten3gram": {"layer": {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten", "input_shape": [96, 1, 1]}, "name": "TimeDistributed", "custom_name": "flatten3gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "maxpool5gram": {"layer": {"name": "MaxPooling2D", "custom_name": "maxpooling2d", "strides": [46, 1], "trainable": true, "dim_ordering": "th", "input_shape": [96, 46, 1], "cache_enabled": true, "pool_size": [46, 1], "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "maxpool5gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "conv4gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Convolution2D", "custom_name": "convolution2d", "subsample": [1, 1], "nb_col": 300, "activation": "relu", "trainable": true, "input_shape": [2, 50, 300], "dim_ordering": "th", "cache_enabled": true, "init": "glorot_uniform", "nb_filter": 96, "b_regularizer": null, "W_regularizer": {"l2": 0.0001, "name": "WeightRegularizer", "l1": 0.0}, "nb_row": 4, "activity_regularizer": null, "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "conv4gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "backwards": {"U_regularizer": null, "name": "GRU", "custom_name": "backwards", "inner_activation": "hard_sigmoid", "go_backwards": true, "output_dim": 100, "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 480, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, "conv3gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Convolution2D", "custom_name": "convolution2d", "subsample": [1, 1], "nb_col": 300, "activation": "relu", "trainable": true, "input_shape": [2, 50, 300], "dim_ordering": "th", "cache_enabled": true, "init": "glorot_uniform", "nb_filter": 96, "b_regularizer": null, "W_regularizer": {"l2": 0.0001, "name": "WeightRegularizer", "l1": 0.0}, "nb_row": 3, "activity_regularizer": null, "border_mode": "valid"}, "name": "TimeDistributed", "custom_name": "conv3gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "dropout4gram": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout4gram", "p": 0.15}, "dropout7gram": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout7gram", "p": 0.15}, "highway3gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "input_shape": [96], "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, "name": "TimeDistributed", "custom_name": "highway3gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}, "highway4gram": {"layer": {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "input_shape": [96], "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, "name": "TimeDistributed", "custom_name": "highway4gram", "trainable": true, "cache_enabled": true, "input_dim": null, "input_length": null}}}, {"W_constraint": null, "b_constraint": null, "name": "MaxoutDense", "custom_name": "maxoutdense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 128, "nb_feature": 8}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.5}, {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, {"W_constraint": null, "b_constraint": null, "name": "Highway", "custom_name": "highway", "activity_regularizer": null, "trainable": true, "transform_bias": -2, "cache_enabled": true, "init": "glorot_uniform", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "activation": "relu"}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.2}, {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "dense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "glorot_uniform", "activation": "sigmoid", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}], "loss": "binary_crossentropy", "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Sequential", "class_mode": "binary", "sample_weight_mode": null}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Initial input shape: [(None, 120002), (None, 32386)]
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Merge (merge)                 (None, 2500, 600)             45716400            
+Reshape (reshape)             (None, 50, 50, 2, 300)        0                   
+Permute (permute)             (None, 50, 2, 50, 300)        0                   
+Graph (Unnamed)               (None, 200)                   1651800             
+MaxoutDense (maxoutdense)     (None, 128)                   205824              
+Dropout (dropout)             (None, 128)                   0                   
+Highway (highway)             (None, 128)                   33024               
+Highway (highway)             (None, 128)                   33024               
+Highway (highway)             (None, 128)                   33024               
+Dropout (dropout)             (None, 128)                   0                   
+Dense (dense)                 (None, 1)                     129                 
+--------------------------------------------------------------------------------
+Total params: 47673225
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.490889, val_loss: 0.395778
+Epoch 2: loss: 0.375599, val_loss: 0.425108
+Epoch 3: loss: 0.292913, val_loss: 0.483703
+Epoch 4: loss: 0.213685, val_loss: 0.643532
+Epoch 5: loss: 0.165701, val_loss: 0.710746
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+import logging
+import numpy as np
+from os.path import join as path_join
+import sys
+
+import keras.backend as K
+
+from keras.models import Sequential, Graph
+from keras.layers.containers import Graph as SubGraph
+from keras.layers.containers import Sequential as Stack
+from keras.layers.core import *
+from keras.layers import Embedding
+from keras.layers.convolutional import *
+from keras.layers.recurrent import GRU, LSTM
+from keras.regularizers import l2
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.timedistributed import TimeDistributed
+
+LOGGER_PREFIX = ' %s'
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def log(msg, logger=logger):
+    logger.info(LOGGER_PREFIX % msg)
+
+MODEL_FILE = './models/yelp-model-rcnn-1'
+LOG_FILE = './outputs/log-model-rcnn-1'
+
+# Read back data
+WV_FILE_YELP = path_join(ROOT_PATH, 'embeddings/wv/Yelp-GloVe-300dim-glovebox.pkl')
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+gb_yelp = pickle.load(open(WV_FILE_YELP, 'rb'))
+
+
+train, test = {}, {}
+
+log('Loading training data')
+
+train['text4yelp'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_yelp_glove_X.npy'))
+train['text4global'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_global_glove_X.npy'))
+train['labels'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_glove_y.npy'))
+
+log('Shuffling training data')
+shuff = range(train['text4yelp'].shape[0])
+np.random.shuffle(shuff)
+
+for k in train.keys():
+    train[k] = train[k][shuff]
+    # -- flatten across paragraph dimension, will later be reconstructed in the embedding
+    if 'lab' not in k:
+        train[k] = train[k].reshape(train[k].shape[0], -1)
+
+del shuff
+
+log('Loading testing data')
+
+# -- testing data
+test['text4yelp'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_yelp_glove_X.npy'))
+test['text4global'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_global_glove_X.npy'))
+test['labels'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_glove_y.npy'))
+
+test['text4yelp'] = test['text4yelp'].reshape(test['text4yelp'].shape[0], -1)
+test['text4global'] = test['text4global'].reshape(test['text4global'].shape[0], -1)
+
+
+
+
+log('Building model architecture...')
+NGRAMS = [2, 3, 4, 5, 7]
+NFILTERS = 32 * 3
+SENTENCE_LENGTH = 50
+PARAGRAPH_LENGTH = 50
+
+INPUT_SHAPE = (SENTENCE_LENGTH * PARAGRAPH_LENGTH, )
+
+global_vectors = Sequential([Embedding(input_dim=gb_global.W.shape[0], output_dim=300, weights=[gb_global.W], input_length=INPUT_SHAPE[0])])
+yelp_vectors = Sequential([Embedding(input_dim=gb_yelp.W.shape[0], output_dim=300, weights=[gb_yelp.W], input_length=INPUT_SHAPE[0])])
+
+model = Sequential()
+
+model.add(Merge([global_vectors, yelp_vectors], mode='concat'))
+
+model.add(Reshape((PARAGRAPH_LENGTH, SENTENCE_LENGTH, 2, 300)))
+model.add(Permute(dims=(1, 3, 2, 4)))
+
+# -- create convolution units...
+conv_unit = SubGraph()
+conv_unit = Graph()
+conv_unit.add_input('embeddings', input_shape=model.output_shape[1:])
+
+for n in NGRAMS:
+    conv_unit.add_node(
+        TimeDistributed(Convolution2D(NFILTERS, n, 300, 
+            W_regularizer=l2(0.0001), 
+            activation='relu')
+        ), 
+        name='conv{}gram'.format(n), input='embeddings'
+    )
+
+    conv_unit.add_node(
+        TimeDistributed(MaxPooling2D(pool_size=(SENTENCE_LENGTH - n + 1, 1))),
+        name='maxpool{}gram'.format(n), input='conv{}gram'.format(n)
+    )
+    
+    # conv_unit.add_node(
+    #         Lambda(
+    #             function=lambda x: K.squeeze(x, axis=-1),
+    #             output_shape=lambda s: s[:-1]
+    #             ),
+    #         name='squeeze{}gram'.format(n), input='conv{}gram'.format(n)
+    # )
+
+    # conv_unit.add_node(
+    #     TimeDistributed(GRU(10), input_shape=conv_unit.nodes['squeeze{}gram'.format(n)].output_shape[1:]),
+    #     name='gru-attn-forward{}gram'.format(n), input='squeeze{}gram'.format(n)
+    # )
+    
+    # conv_unit.add_node(
+    #     TimeDistributed(GRU(10, go_backwards=True)),
+    #     name='gru-attn-backward{}gram'.format(n), input='squeeze{}gram'.format(n)
+    # )
+
+    conv_unit.add_node(
+        Dropout(0.15),
+        name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n)
+    )
+
+    conv_unit.add_node(
+        TimeDistributed(Flatten()), 
+        name='flatten{}gram'.format(n), input='dropout{}gram'.format(n)
+    )
+
+
+    # conv_unit.add_node(
+    #     Dropout(0.15),
+    #     name='dropout-gru{}gram'.format(n), input='gru-attn-forward{}gram'.format(n)
+    # )
+
+
+    conv_unit.add_node(
+        TimeDistributed(Highway(activation='relu')), 
+        name='highway{}gram'.format(n), 
+        input='flatten{}gram'.format(n)
+        # inputs=['flatten{}gram'.format(n), 'dropout-gru{}gram'.format(n)]
+    )
+
+# -- merge across all the n-gram sizes
+conv_unit.add_node(Dropout(0.1), name='dropout', inputs=['highway{}gram'.format(n) for n in NGRAMS])
+
+# -- add a bidirectional RNN
+conv_unit.add_node(GRU(100), name='forwards', input='dropout', concat_axis=-1)
+conv_unit.add_node(GRU(100, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
+
+conv_unit.add_node(Dropout(0.7), name='gru_dropout', inputs=['forwards', 'backwards'], create_output=True)
+
+model.add(conv_unit)
+
+model.add(MaxoutDense(128, 8))
+
+model.add(Dropout(0.5))
+
+model.add(Highway(activation='relu'))
+model.add(Highway(activation='relu'))
+model.add(Highway(activation='relu'))
+
+model.add(Dropout(0.2))
+
+model.add(Dense(1, activation='sigmoid'))
+
+log('Compiling model (may take >10 mins)')
+
+model.compile(loss='binary_crossentropy', optimizer='adam', class_mode='binary')
+
+
+
+log('Testing model!')
+# -- since we are using a merge model, we need to make a list
+train_reviews = [train['text4global'], train['text4yelp']]
+test_reviews = [test['text4global'], test['text4yelp']]
+
+train_labels = train['labels']
+test_labels = test['labels']
+
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+
+
+
