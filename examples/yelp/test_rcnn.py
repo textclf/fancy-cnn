@@ -28,8 +28,8 @@ logger = logging.getLogger(__name__)
 def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
-MODEL_FILE = './models/yelp-model-rcnn-1'
-LOG_FILE = './outputs/log-model-rcnn-1'
+MODEL_FILE = './models/3votes/funny/yelp-model-rcnn-1'
+LOG_FILE = './outputs/3votes/funny/log-model-rcnn-1'
 
 # Read back data
 WV_FILE_YELP = path_join(ROOT_PATH, 'embeddings/wv/Yelp-GloVe-300dim-glovebox.pkl')
@@ -43,9 +43,9 @@ train, test = {}, {}
 
 log('Loading training data')
 
-train['text4yelp'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_yelp_glove_X.npy'))
-train['text4global'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_global_glove_X.npy'))
-train['labels'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_glove_y.npy'))
+train['text4yelp'] = np.load(path_join(ROOT_PATH, 'Yelp_3votes_funny_sentences_train_yelp_glove_X.npy'))
+train['text4global'] = np.load(path_join(ROOT_PATH, 'Yelp_3votes_funny_sentences_train_global_glove_X.npy'))
+train['labels'] = np.load(path_join(ROOT_PATH, 'Yelp_3votes_funny_sentences_train_glove_y.npy'))
 
 log('Shuffling training data')
 shuff = range(train['text4yelp'].shape[0])
@@ -62,9 +62,9 @@ del shuff
 log('Loading testing data')
 
 # -- testing data
-test['text4yelp'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_yelp_glove_X.npy'))
-test['text4global'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_global_glove_X.npy'))
-test['labels'] = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_glove_y.npy'))
+test['text4yelp'] = np.load(path_join(ROOT_PATH, 'Yelp_3votes_funny_sentences_test_yelp_glove_X.npy'))
+test['text4global'] = np.load(path_join(ROOT_PATH, 'Yelp_3votes_funny_sentences_test_global_glove_X.npy'))
+test['labels'] = np.load(path_join(ROOT_PATH, 'Yelp_3votes_funny_sentences_test_glove_y.npy'))
 
 test['text4yelp'] = test['text4yelp'].reshape(test['text4yelp'].shape[0], -1)
 test['text4global'] = test['text4global'].reshape(test['text4global'].shape[0], -1)
