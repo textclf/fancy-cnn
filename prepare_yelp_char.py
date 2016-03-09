@@ -43,17 +43,20 @@ if __name__ == '__main__':
 
     def get_yelp_char(train_reviews, test_reviews):
         log('Converting to character level representations')
+        log('    --> Starting Training Data...')
         train_reviews = yelp.to_char_level_idx(train_reviews, 
             char_container=cm,
             chars_per_word=CHARACTERS_PER_WORD,
             words_per_document=WORDS_PER_DOCUMENT,
             prepend=PREPEND)
-
+        log('    --> Training Data Complete')
+        log('    --> Starting Testing Data...')
         test_reviews = yelp.to_char_level_idx(test_reviews, 
             char_container=cm,
             chars_per_word=CHARACTERS_PER_WORD,
             words_per_document=WORDS_PER_DOCUMENT,
             prepend=PREPEND)
+        log('    --> Testing Data Complete')
         return train_reviews, test_reviews
 
     ##################################
