@@ -83,11 +83,17 @@ def write_log(model, history, code_file, acc, log_file):
     print ("==" * 40)
     print ("Model in json:")
     print ("==" * 40)
-    print model.to_json()
+    try:
+        print model.to_json()
+    except Exception:
+        print ('Error in model JSON encoding')
     print ("==" * 40)
     print "Model summary:"
     print ("==" * 40)
-    model.summary()
+    try:
+        model.summary()
+    except Exception:
+        print ('Error in printing model summary (you probably have a model with a Merge() layer somewhere.)')
     print ("==" * 40)
     print ("Training history:")
     print ("==" * 40)

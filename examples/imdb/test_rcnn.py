@@ -29,8 +29,8 @@ def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
 
-MODEL_FILE = './imdb-model-rcnn-1'
-LOG_FILE = './log-model-rcnn-1'
+MODEL_FILE = './imdb-model-rcnn-old'
+LOG_FILE = './log-model-rcnn-old'
 
 
 # Read back data
@@ -130,7 +130,7 @@ for n in NGRAMS:
     # )
 
     conv_unit.add_node(
-        Dropout(0.15),
+        Dropout(0.3),
         name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n)
     )
 
@@ -146,39 +146,40 @@ for n in NGRAMS:
     # )
 
 
-    conv_unit.add_node(
-        TimeDistributed(Highway(activation='relu')), 
-        name='highway{}gram'.format(n), 
-        input='flatten{}gram'.format(n)
-        # inputs=['flatten{}gram'.format(n), 'dropout-gru{}gram'.format(n)]
-    )
+#    conv_unit.add_node(
+#        TimeDistributed(Highway(activation='relu')), 
+#        name='highway{}gram'.format(n), 
+#        input='flatten{}gram'.format(n)
+#        # inputs=['flatten{}gram'.format(n), 'dropout-gru{}gram'.format(n)]
+#    )
 
 # -- merge across all the n-gram sizes
-conv_unit.add_node(Dropout(0.1), name='dropout', inputs=['highway{}gram'.format(n) for n in NGRAMS])
-
+#conv_unit.add_node(Dropout(0.1), name='dropout', inputs=['flatten{}gram'.format(n) for n in NGRAMS])
+conv_unit.add_node(GRU(96), name='forwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
+conv_unit.add_node(GRU(96, go_backwards=True), name='backwards', inputs=['flatten{}gram'.format(n) for n in NGRAMS], concat_axis=-1)
 # -- add a bidirectional RNN
-conv_unit.add_node(GRU(100), name='forwards', input='dropout', concat_axis=-1)
-conv_unit.add_node(GRU(100, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
+#conv_unit.add_node(GRU(100), name='forwards', input='dropout', concat_axis=-1)
+#conv_unit.add_node(GRU(100, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
 
 conv_unit.add_node(Dropout(0.7), name='gru_dropout', inputs=['forwards', 'backwards'], create_output=True)
 
 model.add(conv_unit)
 
-model.add(MaxoutDense(128, 8))
+model.add(MaxoutDense(64, 5, init='he_uniform'))
 
 model.add(Dropout(0.5))
 
-model.add(Highway(activation='relu'))
-model.add(Highway(activation='relu'))
-model.add(Highway(activation='relu'))
+#model.add(Highway(activation='relu'))
+#model.add(Highway(activation='relu'))
+#model.add(Highway(activation='relu'))
 
-model.add(Dropout(0.2))
+#model.add(Dropout(0.2))
 
 model.add(Dense(1, activation='sigmoid'))
 
 log('Compiling model (may take >10 mins)')
 
-model.compile(loss='binary_crossentropy', optimizer='adam', class_mode='binary')
+model.compile(loss='binary_crossentropy', optimizer='rmsprop', class_mode='binary')
 
 
 
