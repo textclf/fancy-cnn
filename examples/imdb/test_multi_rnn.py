@@ -7,6 +7,7 @@ import sys
 from keras.layers.recurrent import GRU
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
+from keras.layers import Embedding
 
 ROOT_PATH = '../..'
 sys.path.append(ROOT_PATH)
@@ -36,9 +37,9 @@ model.add(GRU(128, return_sequences=True))
 model.add(Dropout(0.5))
 model.add(GRU(64, return_sequences=True))
 model.add(Dropout(0.5))
-model.add(GRU(16, return_sequences=True))
+model.add(GRU(16, return_sequences=False))
 model.add(Dropout(0.2))
-model.add(Flatten())
+#model.add(Flatten())
 model.add(Dense(1))
 model.add(Activation('tanh'))
 

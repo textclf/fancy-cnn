@@ -29,8 +29,8 @@ def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
 
-MODEL_FILE = './imdb-model-rcnn-old'
-LOG_FILE = './log-model-rcnn-old'
+MODEL_FILE = './imdb-model-rcnn-old-2'
+LOG_FILE = './log-model-rcnn-old-2'
 
 
 # Read back data
@@ -76,7 +76,7 @@ test['text4global'] = test['text4global'].reshape(test['text4global'].shape[0], 
 
 log('Building model architecture...')
 NGRAMS = [2, 3, 4, 5, 7]
-NFILTERS = 32 * 3
+NFILTERS = 32 * 4
 SENTENCE_LENGTH = 50
 PARAGRAPH_LENGTH = 50
 
@@ -130,7 +130,7 @@ for n in NGRAMS:
     # )
 
     conv_unit.add_node(
-        Dropout(0.3),
+        Dropout(0.5),
         name='dropout{}gram'.format(n), input='maxpool{}gram'.format(n)
     )
 

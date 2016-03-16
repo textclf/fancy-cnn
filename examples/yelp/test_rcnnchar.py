@@ -14,6 +14,7 @@ from keras.layers import Embedding
 from keras.layers.convolutional import *
 from keras.layers.recurrent import GRU, LSTM
 from keras.regularizers import l2
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 ROOT_PATH = '../..'
 sys.path.append(ROOT_PATH)
@@ -29,14 +30,15 @@ logger = logging.getLogger(__name__)
 def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
+TARGET = 'cool'
 
-MODEL_FILE = './yelp-model-rcnn-char-1'
-LOG_FILE = './log-model-rcnn-char-1'
+MODEL_FILE = './yelp-model-rcnn-char-big-{}'.format(TARGET)
+LOG_FILE = './log-model-rcnn-char-big-{}'.format(TARGET)
 
 log('Loading training data')
 
-train_reviews = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_char_X.npy'))
-train_labels = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_train_char_y.npy'))
+train_reviews = np.load(path_join(ROOT_PATH, 'Yelp_{}_sentences_train_char_3votes_X.npy'.format(TARGET)))
+train_labels = np.load(path_join(ROOT_PATH, 'Yelp_{}_sentences_train_char_3votes_y.npy'.format(TARGET)))
 
 log('Shuffling training data')
 nb_samples = train_reviews.shape[0]
@@ -50,22 +52,22 @@ log('Loading testing data')
 
 # -- testing data
 
-test_reviews = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_char_X.npy'))
+test_reviews = np.load(path_join(ROOT_PATH, 'Yelp_{}_sentences_test_char_3votes_X.npy'.format(TARGET)))
 test_reviews = test_reviews.reshape(test_reviews.shape[0], -1)
 
-test_labels = np.load(path_join(ROOT_PATH, 'Yelp_funny_sentences_test_char_y.npy'))
+test_labels = np.load(path_join(ROOT_PATH, 'Yelp_{}_sentences_test_char_3votes_y.npy'.format(TARGET)))
 
 
 
 
 log('Building model architecture...')
-NGRAMS = [2, 3, 4]
+NGRAMS = [1, 2, 3, 4, 5]
 NFILTERS = 32 * 3
 
 CHARACTERS_PER_WORD = 15
 WORDS_PER_DOCUMENT = 300
 NUMBER_CHARACTERS = len(CharMapper.ALLOWED_CHARS) + 2
-EMBEDDING_DIM = 50
+EMBEDDING_DIM = 100
 INPUT_SHAPE = (CHARACTERS_PER_WORD * WORDS_PER_DOCUMENT, )
 
 
@@ -84,7 +86,7 @@ for n in NGRAMS:
     # -- convolve over the character n-gram in each word
     conv_unit.add_node(
         TimeDistributed(Convolution1D(NFILTERS, n, 
-            W_regularizer=l2(0.0001), 
+    #        W_regularizer=l2(0.0001), 
             activation='relu')
         ), 
         name='conv{}gram'.format(n), input='embeddings'
@@ -103,36 +105,36 @@ for n in NGRAMS:
     )
 
     # -- have a bidirectional LSTM over the convolved character plane
-    conv_unit.add_node(
-        TimeDistributed(LSTM(10)),
-        name='forwardlstm{}gram'.format(n), input='conv{}gram'.format(n)
-    )
-    conv_unit.add_node(
-        TimeDistributed(LSTM(10, go_backwards=True)),
-        name='backwardlstm{}gram'.format(n), input='conv{}gram'.format(n)
-    )
+    #conv_unit.add_node(
+    #    TimeDistributed(LSTM(10)),
+    #    name='forwardlstm{}gram'.format(n), input='conv{}gram'.format(n)
+    #)
+    #conv_unit.add_node(
+    #    TimeDistributed(LSTM(10, go_backwards=True)),
+    #    name='backwardlstm{}gram'.format(n), input='conv{}gram'.format(n)
+    #)
 
     # -- concat the maxpool, fwd-lstm, and bwd-lstm --> dropout
-    conv_unit.add_node(
-        Dropout(0.15),
-        name='dropout{}gram'.format(n), inputs=['flattenmaxpool{}gram'.format(n), 'forwardlstm{}gram'.format(n), 'backwardlstm{}gram'.format(n)]
-    )
+    #conv_unit.add_node(
+    #    Dropout(0.15),
+    #    name='dropout{}gram'.format(n), inputs=['flattenmaxpool{}gram'.format(n), 'forwardlstm{}gram'.format(n), 'backwardlstm{}gram'.format(n)]
+    #)
 
     # -- use a highway layer as the final per-ngram feature
-    conv_unit.add_node(
-        TimeDistributed(Highway(activation='relu')), 
-        name='highway{}gram'.format(n), 
-        input='dropout{}gram'.format(n)
-    )
+    #conv_unit.add_node(
+    #    TimeDistributed(Highway(activation='relu')), 
+    #    name='highway{}gram'.format(n), 
+    #    input='dropout{}gram'.format(n)
+    #)
 
 # -- merge across all the n-gram sizes
-conv_unit.add_node(Dropout(0.1), name='dropout', inputs=['highway{}gram'.format(n) for n in NGRAMS])
+conv_unit.add_node(Dropout(0.5), name='dropout', inputs=['flattenmaxpool{}gram'.format(n) for n in NGRAMS])
 
 # -- add a bidirectional RNN
-conv_unit.add_node(GRU(100), name='forwards', input='dropout', concat_axis=-1)
-conv_unit.add_node(GRU(100, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
+conv_unit.add_node(GRU(90), name='forwards', input='dropout', concat_axis=-1)
+conv_unit.add_node(GRU(90, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
 
-conv_unit.add_node(Dropout(0.7), name='gru_dropout', inputs=['forwards', 'backwards'], create_output=True)
+conv_unit.add_node(Dropout(0.5), name='gru_dropout', inputs=['forwards', 'backwards'], create_output=True)
 
 model.add(conv_unit)
 
@@ -144,7 +146,11 @@ model.add(conv_unit)
 # model.add(Highway(activation='relu'))
 model.add(Highway(activation='relu'))
 
-model.add(Dropout(0.2))
+model.add(Dropout(0.5))
+
+model.add(Dense(64, activation='relu'))
+
+model.add(Dropout(0.4))
 
 model.add(Dense(1, activation='sigmoid'))
 
@@ -156,7 +162,17 @@ model.compile(loss='binary_crossentropy', optimizer='adam', class_mode='binary')
 
 log('Training/Testing model!')
 
-history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+fit_params = {
+    "batch_size": 64,
+    "nb_epoch": 100,
+    "verbose": True,
+    "validation_split": 0.4,
+    "show_accuracy": True,
+    "callbacks": [EarlyStopping(verbose=True, patience=12, monitor='val_acc'),
+                  ModelCheckpoint(MODEL_FILE, monitor='val_acc', verbose=True, save_best_only=True)]
+}
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE, fit_params=fit_params)
 acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
 train_neural.write_log(model, history, __file__, acc, LOG_FILE)
 
