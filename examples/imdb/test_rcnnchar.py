@@ -31,8 +31,8 @@ def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
 
-MODEL_FILE = './imdb-model-rcnn-char-2'
-LOG_FILE = './log-model-rcnn-char-2'
+MODEL_FILE = './imdb-model-rcnn-char-2-big'
+LOG_FILE = './log-model-rcnn-char-2-big'
 
 log('Loading training data')
 
@@ -66,7 +66,7 @@ NFILTERS = 32 * 3
 CHARACTERS_PER_WORD = 15
 WORDS_PER_DOCUMENT = 300
 NUMBER_CHARACTERS = len(CharMapper.ALLOWED_CHARS) + 2
-EMBEDDING_DIM = 50
+EMBEDDING_DIM = 100
 INPUT_SHAPE = (CHARACTERS_PER_WORD * WORDS_PER_DOCUMENT, )
 
 
@@ -85,7 +85,7 @@ for n in NGRAMS:
     # -- convolve over the character n-gram in each word
     conv_unit.add_node(
         TimeDistributed(Convolution1D(NFILTERS, n, 
-            W_regularizer=l2(0.0001), 
+    #        W_regularizer=l2(0.0001), 
             activation='relu')
         ), 
         name='conv{}gram'.format(n), input='embeddings'
@@ -130,8 +130,8 @@ for n in NGRAMS:
 conv_unit.add_node(Dropout(0.5), name='dropout', inputs=['flattenmaxpool{}gram'.format(n) for n in NGRAMS])
 
 # -- add a bidirectional RNN
-conv_unit.add_node(GRU(70), name='forwards', input='dropout', concat_axis=-1)
-conv_unit.add_node(GRU(70, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
+conv_unit.add_node(GRU(90), name='forwards', input='dropout', concat_axis=-1)
+conv_unit.add_node(GRU(90, go_backwards=True), name='backwards', input='dropout', concat_axis=-1)
 
 conv_unit.add_node(Dropout(0.5), name='gru_dropout', inputs=['forwards', 'backwards'], create_output=True)
 
@@ -149,7 +149,7 @@ model.add(Dropout(0.5))
 
 model.add(Dense(64, activation='relu'))
 
-model.add(Dropout(0.3))
+model.add(Dropout(0.4))
 
 model.add(Dense(1, activation='sigmoid'))
 
@@ -165,7 +165,7 @@ fit_params = {
     "batch_size": 64,
     "nb_epoch": 100,
     "verbose": True,
-    "validation_split": 0.23,
+    "validation_split": 0.25,
     "show_accuracy": True,
     "callbacks": [EarlyStopping(verbose=True, patience=12, monitor='val_acc'),
                   ModelCheckpoint(MODEL_FILE, monitor='val_acc', verbose=True, save_best_only=True)]

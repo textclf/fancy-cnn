@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 def log(msg, logger=logger):
     logger.info(LOGGER_PREFIX % msg)
 
-TARGET = 'cool'
+TARGET = 'useful'
 
 MODEL_FILE = './yelp-model-rcnn-char-big-{}'.format(TARGET)
 LOG_FILE = './log-model-rcnn-char-big-{}'.format(TARGET)
