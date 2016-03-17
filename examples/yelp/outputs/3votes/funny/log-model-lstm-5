@@ -1,0 +1,108 @@
+Model trained at 2016-03-12 02:51:49
+Accuracy obtained: 0.794256182127
+Error obtained: 0.205743817873
+================================================================================
+Model in json:
+================================================================================
+{"layers": [{"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": false, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": null}, {"U_regularizer": null, "name": "LSTM", "custom_name": "lstm", "inner_activation": "hard_sigmoid", "go_backwards": false, "activation": "tanh", "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "output_dim": 32, "forget_bias_init": "one", "input_length": null}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.2}, {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "dense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "glorot_uniform", "activation": "linear", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}, {"cache_enabled": true, "activation": "tanh", "trainable": true, "name": "Activation", "custom_name": "activation"}], "loss": "binary_crossentropy", "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Sequential", "class_mode": "binary", "sample_weight_mode": null}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Initial input shape: (None, 120002)
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Embedding (embedding)         (None, None, 300)             36000600            
+LSTM (lstm)                   (None, 32)                    42624               
+Dropout (dropout)             (None, 32)                    0                   
+Dense (dense)                 (None, 1)                     33                  
+Activation (activation)       (None, 1)                     0                   
+--------------------------------------------------------------------------------
+Total params: 36043257
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.575625, val_loss: 0.512914
+Epoch 2: loss: 0.545150, val_loss: 0.512392
+Epoch 3: loss: 0.516884, val_loss: 0.481117
+Epoch 4: loss: 0.501940, val_loss: 0.499060
+Epoch 5: loss: 0.477454, val_loss: 0.464267
+Epoch 6: loss: 0.469464, val_loss: 0.454664
+Epoch 7: loss: 0.465738, val_loss: 0.451080
+Epoch 8: loss: 0.466226, val_loss: 0.448131
+Epoch 9: loss: 0.459867, val_loss: 0.445837
+Epoch 10: loss: 0.454104, val_loss: 0.447869
+Epoch 11: loss: 0.453582, val_loss: 0.457655
+Epoch 12: loss: 0.448072, val_loss: 0.447301
+Epoch 13: loss: 0.440688, val_loss: 0.439762
+Epoch 14: loss: 0.438402, val_loss: 0.437187
+Epoch 15: loss: 0.433373, val_loss: 0.441139
+Epoch 16: loss: 0.431874, val_loss: 0.437646
+Epoch 17: loss: 0.425923, val_loss: 0.467086
+Epoch 18: loss: 0.426606, val_loss: 0.447183
+Epoch 19: loss: 0.420119, val_loss: 0.436029
+Epoch 20: loss: 0.420137, val_loss: 0.460786
+Epoch 21: loss: 0.412515, val_loss: 0.436076
+Epoch 22: loss: 0.409029, val_loss: 0.444189
+Epoch 23: loss: 0.407405, val_loss: 0.440788
+Epoch 24: loss: 0.403858, val_loss: 0.451358
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+import numpy as np
+import os
+from os.path import join as path_join
+import sys
+
+from keras.layers.recurrent import GRU, LSTM
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation, Dropout
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
+
+MODEL_FILE = './models/3votes/funny/yelp-model-lstm-5'
+LOG_FILE = './outputs/3votes/funny/log-model-lstm-5'
+
+# Read back data
+train_reviews = np.load("../../Yelp_3votes_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_3votes_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_3votes_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_3votes_funny_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_3votes_useful_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_3votes_useful_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_3votes_useful_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_3votes_useful_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_3votes_cool_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_3votes_cool_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_3votes_cool_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_3votes_cool_test_fulltext_glove_300_y.npy")
+
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Sequential()
+model.add(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
+                         fixed=True, constraint=None))
+model.add(LSTM(32))
+model.add(Dropout(0.2))
+model.add(Dense(1))
+model.add(Activation('tanh'))
+
+model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+

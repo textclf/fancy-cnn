@@ -1,0 +1,92 @@
+Model trained at 2016-03-10 21:11:30
+Accuracy obtained: 0.674660944509
+Error obtained: 0.325339055491
+================================================================================
+Model in json:
+================================================================================
+{"layers": [{"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": false, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": null}, {"U_regularizer": null, "name": "GRU", "custom_name": "gru", "inner_activation": "hard_sigmoid", "go_backwards": false, "output_dim": 128, "trainable": true, "stateful": false, "cache_enabled": true, "init": "uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.2}, {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "dense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "uniform", "activation": "linear", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}, {"cache_enabled": true, "activation": "sigmoid", "trainable": true, "name": "Activation", "custom_name": "activation"}], "loss": "binary_crossentropy", "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Sequential", "class_mode": "binary", "sample_weight_mode": null}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Initial input shape: (None, 120002)
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Embedding (embedding)         (None, None, 300)             36000600            
+GRU (gru)                     (None, 128)                   164736              
+Dropout (dropout)             (None, 128)                   0                   
+Dense (dense)                 (None, 1)                     129                 
+Activation (activation)       (None, 1)                     0                   
+--------------------------------------------------------------------------------
+Total params: 36165465
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.621849, val_loss: 0.613390
+Epoch 2: loss: 0.608836, val_loss: 0.610875
+Epoch 3: loss: 0.604642, val_loss: 0.609133
+Epoch 4: loss: 0.601095, val_loss: 0.607806
+Epoch 5: loss: 0.597745, val_loss: 0.607704
+Epoch 6: loss: 0.594503, val_loss: 0.608044
+Epoch 7: loss: 0.592299, val_loss: 0.609889
+Epoch 8: loss: 0.588946, val_loss: 0.613498
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+import numpy as np
+import os
+from os.path import join as path_join
+import sys
+
+from keras.layers.recurrent import GRU
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation, Dropout
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
+
+MODEL_FILE = './models/1votes/funny/yelp-model-rnn-1'
+LOG_FILE = './outputs/1votes/funny/log-model-rnn-1'
+
+# Read back data
+train_reviews = np.load("../../Yelp_1votes_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_1votes_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_1votes_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_1votes_funny_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_1votes_useful_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_1votes_useful_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_1votes_useful_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_1votes_useful_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_1votes_cool_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_1votes_cool_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_1votes_cool_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_1votes_cool_test_fulltext_glove_300_y.npy")
+
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Sequential()
+model.add(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
+                         fixed=True, constraint=None))
+model.add(GRU(128, init='uniform', ))
+model.add(Dropout(0.2))
+model.add(Dense(1, init='uniform'))
+model.add(Activation('sigmoid'))
+
+model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+

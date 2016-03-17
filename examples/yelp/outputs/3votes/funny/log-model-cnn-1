@@ -1,0 +1,131 @@
+Model trained at 2016-03-08 18:06:23
+Accuracy obtained: 0.791508569933
+Error obtained: 0.208491430067
+================================================================================
+Model in json:
+================================================================================
+{"layers": [{"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "embedding", "output_dim": 300, "trainable": false, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": 300}, {"input_length": null, "W_constraint": null, "b_constraint": null, "name": "Convolution1D", "custom_name": "convolution1d", "activity_regularizer": null, "trainable": true, "filter_length": 3, "cache_enabled": true, "init": "uniform", "nb_filter": 64, "input_dim": null, "subsample_length": 1, "b_regularizer": null, "W_regularizer": null, "activation": "linear", "border_mode": "valid"}, {"cache_enabled": true, "activation": "relu", "trainable": true, "name": "Activation", "custom_name": "activation"}, {"pool_length": 2, "name": "MaxPooling1D", "custom_name": "maxpooling1d", "stride": 2, "trainable": true, "cache_enabled": true, "border_mode": "valid"}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.25}, {"input_length": null, "W_constraint": null, "b_constraint": null, "name": "Convolution1D", "custom_name": "convolution1d", "activity_regularizer": null, "trainable": true, "filter_length": 3, "cache_enabled": true, "init": "uniform", "nb_filter": 64, "input_dim": null, "subsample_length": 1, "b_regularizer": null, "W_regularizer": null, "activation": "linear", "border_mode": "valid"}, {"cache_enabled": true, "activation": "relu", "trainable": true, "name": "Activation", "custom_name": "activation"}, {"pool_length": 2, "name": "MaxPooling1D", "custom_name": "maxpooling1d", "stride": 2, "trainable": true, "cache_enabled": true, "border_mode": "valid"}, {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "dropout", "p": 0.25}, {"cache_enabled": true, "trainable": true, "name": "Flatten", "custom_name": "flatten"}, {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "dense", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "uniform", "activation": "linear", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}, {"cache_enabled": true, "activation": "sigmoid", "trainable": true, "name": "Activation", "custom_name": "activation"}], "loss": "binary_crossentropy", "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Sequential", "class_mode": "binary", "sample_weight_mode": null}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Initial input shape: (None, 120002)
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Embedding (embedding)         (None, 300, 300)              36000600            
+Convolution1D (convolution1d) (None, 298, 64)               57664               
+Activation (activation)       (None, 298, 64)               0                   
+MaxPooling1D (maxpooling1d)   (None, 149, 64)               0                   
+Dropout (dropout)             (None, 149, 64)               0                   
+Convolution1D (convolution1d) (None, 147, 64)               12352               
+Activation (activation)       (None, 147, 64)               0                   
+MaxPooling1D (maxpooling1d)   (None, 73, 64)                0                   
+Dropout (dropout)             (None, 73, 64)                0                   
+Flatten (flatten)             (None, 4672)                  0                   
+Dense (dense)                 (None, 1)                     4673                
+Activation (activation)       (None, 1)                     0                   
+--------------------------------------------------------------------------------
+Total params: 36075289
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.484916, val_loss: 0.462715
+Epoch 2: loss: 0.457169, val_loss: 0.445003
+Epoch 3: loss: 0.443660, val_loss: 0.441415
+Epoch 4: loss: 0.433711, val_loss: 0.443224
+Epoch 5: loss: 0.424215, val_loss: 0.446786
+Epoch 6: loss: 0.413179, val_loss: 0.444670
+Epoch 7: loss: 0.405327, val_loss: 0.445261
+Epoch 8: loss: 0.395857, val_loss: 0.451898
+Epoch 9: loss: 0.386749, val_loss: 0.455422
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+from os.path import join as path_join
+import sys
+
+import numpy as np
+from keras.layers.recurrent import GRU
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation, Dropout, Flatten, Permute
+from keras.layers import Embedding
+from keras.layers.convolutional import Convolution1D, MaxPooling1D
+from keras.optimizers import SGD
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+
+MODEL_FILE = './models/3votes/funny/yelp-model-cnn-1'
+LOG_FILE = './outputs/3votes/funny/log-model-cnn-1'
+
+## Where is the data
+train_reviews = np.load("../../Yelp_3votes_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_3votes_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_3votes_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_3votes_funny_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_3votes_useful_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_3votes_useful_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_3votes_useful_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_3votes_useful_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_3votes_cool_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_3votes_cool_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_3votes_cool_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_3votes_cool_test_fulltext_glove_300_y.npy")
+
+### Same with Yelp glove vectors
+
+#train_reviews = np.load("../../Yelp_3votes_funny_train_fulltext_Yelp_3votes_glove_300_X.npy")
+#train_labels = np.load("../../Yelp_3votes_funny_train_fulltext_Yelp_3votes_glove_300_y.npy")
+#test_reviews = np.load("../../Yelp_3votes_funny_test_fulltext_Yelp_glove_300_X.npy")
+#test_labels = np.load("../../Yelp_funny_test_fulltext_Yelp_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_useful_train_fulltext_Yelp_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_useful_train_fulltext_Yelp_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_useful_test_fulltext_Yelp_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_useful_test_fulltext_Yelp_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_cool_train_fulltext_Yelp_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_cool_train_fulltext_Yelp_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_cool_test_fulltext_Yelp_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_cool_test_fulltext_Yelp_glove_300_y.npy")
+
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+#WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/Yelp-GloVe-300dim-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Sequential()
+emb = Embedding(gb_global.W.shape[0], wv_size, weights=[gb_global.W],
+                    input_length=train_reviews.shape[1])
+emb.trainable = False
+model.add(emb)
+model.add(Convolution1D(64, 3, init='uniform'))
+model.add(Activation('relu'))
+model.add(MaxPooling1D(2))
+model.add(Dropout(0.25))
+
+model.add(Convolution1D(64, 3, init='uniform'))
+model.add(Activation('relu'))
+model.add(MaxPooling1D(2))
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+model.add(Dense(1, init='uniform'))
+model.add(Activation('sigmoid'))
+
+#sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+model.compile(loss='binary_crossentropy', optimizer="adam", class_mode="binary")
+
+history = train_neural.train_sequential(model, train_reviews, train_labels, MODEL_FILE)
+acc = train_neural.test_sequential(model, test_reviews, test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+

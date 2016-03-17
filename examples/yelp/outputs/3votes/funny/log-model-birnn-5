@@ -1,0 +1,120 @@
+Model trained at 2016-03-12 04:39:39
+Accuracy obtained: 0.823404028562
+Error obtained: 0.176595971438
+================================================================================
+Model in json:
+================================================================================
+{"loss": {"prediction": "binary_crossentropy"}, "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Graph", "sample_weight_modes": {}, "output_config": [{"inputs": [], "name": "prediction", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "input": "probability"}], "input_config": [{"dtype": "int", "name": "input", "input_shape": [300]}], "node_config": [{"inputs": [], "name": "wvs", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "input"}, {"inputs": [], "name": "gru_forwards", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "wvs"}, {"inputs": [], "name": "gru_backwards", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "wvs"}, {"inputs": ["gru_forwards", "gru_backwards"], "name": "gru_dropout", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": null}, {"inputs": [], "name": "probability", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "gru_dropout"}], "output_order": ["prediction"], "input_order": ["input"], "nodes": {"wvs": {"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "wvs", "output_dim": 300, "trainable": false, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": null}, "gru_backwards": {"U_regularizer": null, "name": "GRU", "custom_name": "gru_backwards", "inner_activation": "hard_sigmoid", "go_backwards": true, "output_dim": 16, "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, "gru_dropout": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "gru_dropout", "p": 0.5}, "gru_forwards": {"U_regularizer": null, "name": "GRU", "custom_name": "gru_forwards", "inner_activation": "hard_sigmoid", "go_backwards": false, "output_dim": 16, "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "activation": "tanh", "input_length": null}, "probability": {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "probability", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "uniform", "activation": "tanh", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}}}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Layer (input)                 (None, 300)                   0                   
+Embedding (wvs)               (None, None, 300)             36000600            
+GRU (gru_forwards)            (None, 16)                    15216               
+GRU (gru_backwards)           (None, 16)                    15216               
+Dropout (gru_dropout)         (None, 32)                    0                   
+Dense (probability)           (None, 1)                     33                  
+Dense (prediction)            (None, 1)                     33                  
+--------------------------------------------------------------------------------
+Total params: 36031065
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.555155, val_loss: 0.458888
+Epoch 2: loss: 0.474344, val_loss: 0.457150
+Epoch 3: loss: 0.455392, val_loss: 0.435193
+Epoch 4: loss: 0.432774, val_loss: 0.420619
+Epoch 5: loss: 0.427590, val_loss: 0.425761
+Epoch 6: loss: 0.425596, val_loss: 0.421092
+Epoch 7: loss: 0.457840, val_loss: 0.463559
+Epoch 8: loss: 0.448897, val_loss: 0.416576
+Epoch 9: loss: 0.426978, val_loss: 0.408790
+Epoch 10: loss: 0.418904, val_loss: 0.415393
+Epoch 11: loss: 0.416417, val_loss: 0.410871
+Epoch 12: loss: 0.425418, val_loss: 0.417951
+Epoch 13: loss: 0.409724, val_loss: 0.409152
+Epoch 14: loss: 0.409287, val_loss: 0.416927
+Epoch 15: loss: 0.423935, val_loss: 0.401372
+Epoch 16: loss: 0.411188, val_loss: 0.403207
+Epoch 17: loss: 0.411431, val_loss: 0.409426
+Epoch 18: loss: 0.410844, val_loss: 0.411366
+Epoch 19: loss: 0.402768, val_loss: 0.413351
+Epoch 20: loss: 0.425211, val_loss: 0.407036
+Epoch 21: loss: 0.407571, val_loss: 0.416590
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+import sys
+from os.path import join as path_join
+import numpy as np
+
+from keras.layers.recurrent import GRU
+from keras.models import Sequential, Graph
+from keras.layers.core import Dense, Activation, Dropout
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
+
+MODEL_FILE = './models/3votes/funny/yelp-model-birnn-5'
+LOG_FILE = './outputs/3votes/funny/log-model-birnn-5'
+
+# Read back data
+train_reviews = np.load("../../Yelp_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_funny_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_useful_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_useful_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_useful_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_useful_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_cool_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_cool_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_cool_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_cool_test_fulltext_glove_300_y.npy")
+
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Graph()
+model.add_input('input', (len(train_reviews[0]), ), dtype='int')
+model.add_node(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
+                         fixed=True, constraint=None), name='wvs', input='input')
+model.add_node(GRU(16), name='gru_forwards', input='wvs')
+model.add_node(GRU(16, go_backwards=True), name='gru_backwards', input='wvs')
+model.add_node(Dropout(0.5), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
+model.add_node(Dense(1, init='uniform', activation='tanh'), name='probability', input='gru_dropout')
+model.add_output(name='prediction', input='probability')
+
+model.compile(loss={'prediction': 'binary_crossentropy'}, optimizer='adam')
+
+fit_params = {
+    "data": {
+        'input': train_reviews,
+        'prediction': train_labels
+    },
+    "batch_size": 32,
+    "nb_epoch": 50,
+    "verbose": True,
+    "validation_split": 0.1,
+    "callbacks": [EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
+                  ModelCheckpoint(MODEL_FILE, monitor='val_loss', verbose=True, save_best_only=True)]
+}
+
+history = train_neural.train_graph(model, fit_params)
+acc = train_neural.test_graph(model, {'input': test_reviews}, 'prediction', test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+

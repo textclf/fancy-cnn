@@ -1,0 +1,133 @@
+Model trained at 2016-03-12 08:02:37
+Accuracy obtained: 0.827080890973
+Error obtained: 0.172919109027
+================================================================================
+Model in json:
+================================================================================
+{"loss": {"prediction": "binary_crossentropy"}, "optimizer": {"beta_1": 0.8999999761581421, "epsilon": 1e-08, "beta_2": 0.9990000128746033, "lr": 0.0010000000474974513, "name": "Adam"}, "name": "Graph", "sample_weight_modes": {}, "output_config": [{"inputs": [], "name": "prediction", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "input": "probability"}], "input_config": [{"dtype": "int", "name": "input", "input_shape": [300]}], "node_config": [{"inputs": [], "name": "wvs", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "input"}, {"inputs": [], "name": "gru_forwards", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "wvs"}, {"inputs": [], "name": "gru_backwards", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "wvs"}, {"inputs": ["gru_forwards", "gru_backwards"], "name": "gru_dropout", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": null}, {"inputs": [], "name": "probability", "concat_axis": -1, "merge_mode": "concat", "dot_axes": -1, "create_output": false, "input": "gru_dropout"}], "output_order": ["prediction"], "input_order": ["input"], "nodes": {"wvs": {"W_constraint": null, "activity_regularizer": null, "name": "Embedding", "custom_name": "wvs", "output_dim": 300, "trainable": false, "input_shape": [120002], "cache_enabled": true, "init": "uniform", "input_dim": 120002, "mask_zero": false, "W_regularizer": null, "dropout": 0.0, "input_length": null}, "gru_backwards": {"U_regularizer": null, "name": "LSTM", "custom_name": "gru_backwards", "inner_activation": "hard_sigmoid", "go_backwards": true, "activation": "tanh", "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "output_dim": 16, "forget_bias_init": "one", "input_length": null}, "gru_dropout": {"cache_enabled": true, "trainable": true, "name": "Dropout", "custom_name": "gru_dropout", "p": 0.5}, "gru_forwards": {"U_regularizer": null, "name": "LSTM", "custom_name": "gru_forwards", "inner_activation": "hard_sigmoid", "go_backwards": false, "activation": "tanh", "trainable": true, "stateful": false, "cache_enabled": true, "init": "glorot_uniform", "inner_init": "orthogonal", "dropout_U": 0.0, "dropout_W": 0.0, "input_dim": 300, "return_sequences": false, "b_regularizer": null, "W_regularizer": null, "output_dim": 16, "forget_bias_init": "one", "input_length": null}, "probability": {"W_constraint": null, "b_constraint": null, "name": "Dense", "custom_name": "probability", "activity_regularizer": null, "trainable": true, "cache_enabled": true, "init": "uniform", "activation": "tanh", "input_dim": null, "b_regularizer": null, "W_regularizer": null, "output_dim": 1}}}
+================================================================================
+Model summary:
+================================================================================
+--------------------------------------------------------------------------------
+Layer (name)                  Output Shape                  Param #             
+--------------------------------------------------------------------------------
+Layer (input)                 (None, 300)                   0                   
+Embedding (wvs)               (None, None, 300)             36000600            
+LSTM (gru_forwards)           (None, 16)                    20288               
+LSTM (gru_backwards)          (None, 16)                    20288               
+Dropout (gru_dropout)         (None, 32)                    0                   
+Dense (probability)           (None, 1)                     33                  
+Dense (prediction)            (None, 1)                     33                  
+--------------------------------------------------------------------------------
+Total params: 36041209
+--------------------------------------------------------------------------------
+================================================================================
+Training history:
+================================================================================
+Epoch 1: loss: 0.584237, val_loss: 0.610753
+Epoch 2: loss: 0.551861, val_loss: 0.507981
+Epoch 3: loss: 0.516686, val_loss: 0.480068
+Epoch 4: loss: 0.495750, val_loss: 0.462109
+Epoch 5: loss: 0.569090, val_loss: 0.543672
+Epoch 6: loss: 0.518166, val_loss: 0.508989
+Epoch 7: loss: 0.485424, val_loss: 0.514112
+Epoch 8: loss: 0.453253, val_loss: 0.431313
+Epoch 9: loss: 0.437820, val_loss: 0.429787
+Epoch 10: loss: 0.432896, val_loss: 0.420824
+Epoch 11: loss: 0.426630, val_loss: 0.418700
+Epoch 12: loss: 0.427446, val_loss: 0.408829
+Epoch 13: loss: 0.417293, val_loss: 0.437203
+Epoch 14: loss: 0.410162, val_loss: 0.404711
+Epoch 15: loss: 0.408137, val_loss: 0.406842
+Epoch 16: loss: 0.401897, val_loss: 0.414453
+Epoch 17: loss: 0.402403, val_loss: 0.415489
+Epoch 18: loss: 0.404262, val_loss: 0.399260
+Epoch 19: loss: 0.396630, val_loss: 0.399355
+Epoch 20: loss: 0.390787, val_loss: 0.400081
+Epoch 21: loss: 0.387118, val_loss: 0.398235
+Epoch 22: loss: 0.384071, val_loss: 0.404583
+Epoch 23: loss: 0.409493, val_loss: 0.409479
+Epoch 24: loss: 0.397826, val_loss: 0.400125
+Epoch 25: loss: 0.399405, val_loss: 0.394983
+Epoch 26: loss: 0.383222, val_loss: 0.402669
+Epoch 27: loss: 0.373965, val_loss: 0.396318
+Epoch 28: loss: 0.371910, val_loss: 0.394304
+Epoch 29: loss: 0.372857, val_loss: 0.399008
+Epoch 30: loss: 0.370298, val_loss: 0.397693
+Epoch 31: loss: 0.370352, val_loss: 0.415851
+Epoch 32: loss: 0.367302, val_loss: 0.408932
+Epoch 33: loss: 0.387460, val_loss: 0.416794
+Epoch 34: loss: 0.375387, val_loss: 0.408123
+================================================================================
+Code file:
+================================================================================
+import cPickle as pickle
+import sys
+from os.path import join as path_join
+import numpy as np
+
+from keras.layers.recurrent import GRU, LSTM
+from keras.models import Sequential, Graph
+from keras.layers.core import Dense, Activation, Dropout
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+
+ROOT_PATH = '../..'
+sys.path.append(ROOT_PATH)
+
+from textclf.nn import train_neural
+from textclf.nn.embeddings import make_embedding
+
+MODEL_FILE = './models/3votes/funny/yelp-model-birnn-6'
+LOG_FILE = './outputs/3votes/funny/log-model-birnn-6'
+
+# Read back data
+train_reviews = np.load("../../Yelp_funny_train_fulltext_glove_300_X.npy")
+train_labels = np.load("../../Yelp_funny_train_fulltext_glove_300_y.npy")
+test_reviews = np.load("../../Yelp_funny_test_fulltext_glove_300_X.npy")
+test_labels = np.load("../../Yelp_funny_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_useful_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_useful_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_useful_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_useful_test_fulltext_glove_300_y.npy")
+
+# train_reviews = np.load("../../Yelp_cool_train_fulltext_glove_300_X.npy")
+# train_labels = np.load("../../Yelp_cool_train_fulltext_glove_300_y.npy")
+# test_reviews = np.load("../../Yelp_cool_test_fulltext_glove_300_X.npy")
+# test_labels = np.load("../../Yelp_cool_test_fulltext_glove_300_y.npy")
+
+WV_FILE_GLOBAL = path_join(ROOT_PATH, 'embeddings/wv/glove.42B.300d.120000-glovebox.pkl')
+
+gb_global = pickle.load(open(WV_FILE_GLOBAL, 'rb'))
+
+wv_size = gb_global.W.shape[1]
+
+model = Graph()
+model.add_input('input', (len(train_reviews[0]), ), dtype='int')
+model.add_node(make_embedding(vocab_size=gb_global.W.shape[0], init=gb_global.W, wv_size=wv_size,
+                         fixed=True, constraint=None), name='wvs', input='input')
+model.add_node(LSTM(16), name='gru_forwards', input='wvs')
+model.add_node(LSTM(16, go_backwards=True), name='gru_backwards', input='wvs')
+model.add_node(Dropout(0.5), name='gru_dropout', inputs=['gru_forwards', 'gru_backwards'])
+model.add_node(Dense(1, init='uniform', activation='tanh'), name='probability', input='gru_dropout')
+model.add_output(name='prediction', input='probability')
+
+model.compile(loss={'prediction': 'binary_crossentropy'}, optimizer='adam')
+
+fit_params = {
+    "data": {
+        'input': train_reviews,
+        'prediction': train_labels
+    },
+    "batch_size": 32,
+    "nb_epoch": 50,
+    "verbose": True,
+    "validation_split": 0.1,
+    "callbacks": [EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
+                  ModelCheckpoint(MODEL_FILE, monitor='val_loss', verbose=True, save_best_only=True)]
+}
+
+history = train_neural.train_graph(model, fit_params)
+acc = train_neural.test_graph(model, {'input': test_reviews}, 'prediction', test_labels, MODEL_FILE)
+train_neural.write_log(model, history, __file__, acc, LOG_FILE)
+
